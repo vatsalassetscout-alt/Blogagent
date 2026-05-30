@@ -1,423 +1,716 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEO Blog Agent | Complete AI Content Generator</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7f5 0%,#eef1ec 100%);min-height:100vh;padding:2rem 1rem;color:#1a2e2a}
-  .container{max-width:900px;margin:0 auto}
-  .header{text-align:center;margin-bottom:2rem}
-  h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#1D9E75,#0a5e45);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:0.5rem}
-  .subtitle{color:#5a7268;font-size:0.9rem}
-  .steps{display:flex;gap:8px;justify-content:center;margin-bottom:2rem;flex-wrap:wrap}
-  .step{display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:600;background:#fff;padding:4px 14px;border-radius:40px;color:#7a8e86;box-shadow:0 1px 2px rgba(0,0,0,0.05)}
-  .step-dot{width:8px;height:8px;border-radius:50%;background:#cbd5cf}
-  .step.active{background:#e6f4ef;color:#1D9E75}.step.active .step-dot{background:#1D9E75}
-  .step.done{background:#edf5e8;color:#639922}.step.done .step-dot{background:#639922}
-  .step-arrow{color:#c2cec8}
-  .input-row{display:flex;gap:12px;margin-bottom:2rem;flex-wrap:wrap;justify-content:center}
-  .input-row input{flex:2;min-width:260px;padding:14px 20px;border:2px solid #e2e8df;border-radius:60px;font-size:0.9rem;outline:none;transition:all 0.2s}
-  .input-row input:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,0.1)}
-  .btn-run{padding:14px 36px;background:#1D9E75;color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;transition:all 0.2s;font-size:0.9rem}
-  .btn-run:hover{background:#0f8260;transform:translateY(-1px);box-shadow:0 4px 12px rgba(29,158,117,0.3)}
-  .btn-run:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-  .output-area{display:none;margin-top:1rem}
-  .output-area.visible{display:block}
-  .phase{background:#fff;border-radius:20px;margin-bottom:1.5rem;overflow:hidden;border:1px solid #e6ede3;transition:all 0.2s}
-  .phase.running{box-shadow:0 0 0 2px #c3eadb}
-  .phase-head{display:flex;align-items:center;gap:12px;padding:1rem 1.5rem;background:#fefefc;border-bottom:1px solid #eef2e6}
-  .phase-icon{font-size:1.3rem}
-  .phase-title{font-weight:650;flex:1;color:#1f3d37}
-  .phase-badge{font-size:0.7rem;padding:4px 12px;border-radius:40px;font-weight:600}
-  .badge-running{background:#e1f9f1;color:#0f6e56}
-  .badge-done{background:#e9f5e2;color:#376e1f}
-  .badge-wait{background:#f3f4f0;color:#87928a}
-  .badge-error{background:#feeceb;color:#bc3f33}
-  .phase-body{padding:1.2rem 1.5rem;font-size:0.85rem;color:#2c423e;line-height:1.6}
-  .phase-body.hidden{display:none}
-  .keyword-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
-  .kw-card{background:#fafdf9;border-radius:16px;padding:1rem;border:1px solid #e2efdf;transition:all 0.2s}
-  .kw-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.05)}
-  .kw-tag{font-size:0.65rem;font-weight:700;color:#1D9E75;background:#dff3ea;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}
-  .kw-name{font-weight:800;font-size:1rem;margin-bottom:5px;color:#1a3a32}
-  .kw-meta{font-size:0.7rem;color:#6f877f}
-  .blog-card{background:#fff;border-radius:20px;padding:1.5rem;border:1px solid #e2efe7}
-  .blog-title-display{font-size:1.4rem;font-weight:800;margin-bottom:0.8rem;color:#102b25;line-height:1.3}
-  .meta-pill{font-size:0.7rem;padding:4px 12px;border-radius:30px;display:inline-block;margin-right:8px;margin-bottom:6px}
-  .pill-green{background:#e0f0e1;color:#3b6e2c}
-  .pill-blue{background:#e3f0fc;color:#26648c}
-  .pill-amber{background:#fff0e0;color:#b2621a}
-  .meta-desc-box{background:#f7faf5;border-radius:12px;padding:0.6rem 1rem;margin:0.8rem 0;border-left:3px solid #b3dfcd;font-size:0.75rem}
-  .blog-outline{border-left:3px solid #9DDFC7;padding-left:1rem;margin:1rem 0}
-  .outline-item{font-size:0.8rem;padding:4px 0;color:#2c5b4e}
-  .intro-preview{background:#fefaf0;padding:1rem;border-radius:12px;margin-top:0.8rem;font-size:0.8rem;line-height:1.6}
-  .seo-scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:0.8rem;margin-bottom:1rem}
-  .score-card{background:#f3faf6;border-radius:16px;text-align:center;padding:0.8rem;transition:all 0.2s}
-  .score-card:hover{transform:scale(1.02)}
-  .score-num{font-size:1.8rem;font-weight:800;color:#1D9E75}
-  .download-row{display:flex;gap:10px;margin-top:1.2rem;flex-wrap:wrap}
-  .btn-secondary{background:#f0f2ec;border:1px solid #d3decb;padding:8px 20px;border-radius:40px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:0.1s}
-  .btn-secondary:hover{background:#e2e8db;transform:translateY(-1px)}
-  .loading-pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:#1D9E75;margin-right:8px;animation:pulse 1s infinite}
-  @keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
-  .error-box{background:#fff6f5;border-left:4px solid #e98479;padding:1rem;border-radius:14px;color:#bc3f33}
-  .location-badge{background:#ecf3ef;border-radius:40px;padding:4px 12px;font-size:0.7rem;display:inline-block;margin:4px 4px 0 0}
-  .full-blog-preview{background:#fafcf8;border-radius:16px;padding:1rem;font-size:0.75rem;max-height:300px;overflow:auto;margin-top:1rem;border:1px solid #e5ecdf;font-family:monospace;white-space:pre-wrap;line-height:1.5}
-  @media (max-width:600px){.keyword-grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>🔍 SEO Blog Agent</h1>
-    <p class="subtitle">AI-powered blog generator • No API key required • Works entirely in your browser</p>
-  </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Responsive Gallery | Desktop Hover-Expand + Mobile Swipe</title>
+  <!-- Google Fonts + Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Swiper JS (only for mobile, but loaded conditionally) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <!-- Fancybox 5 for lightbox (both layouts) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  <div class="steps">
-    <div class="step active" id="s1"><div class="step-dot"></div>Analyze</div>
-    <div class="step-arrow">›</div>
-    <div class="step" id="s2"><div class="step-dot"></div>Keywords</div>
-    <div class="step-arrow">›</div>
-    <div class="step" id="s3"><div class="step-dot"></div>Write</div>
-    <div class="step-arrow">›</div>
-    <div class="step" id="s4"><div class="step-dot"></div>Score</div>
-  </div>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #0a0a0a;
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-  <div class="input-row">
-    <input type="text" id="urlInput" placeholder="https://yourwebsite.com" value="https://example.com" />
-    <button class="btn-run" id="runBtn">✨ Generate Blog →</button>
-  </div>
+    /* FULL WIDTH GALLERY — stretches edge to edge */
+    .full-width-gallery {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      padding: 0;
+      overflow: hidden;
+    }
 
-  <div class="output-area" id="outputArea">
-    <div class="phase" id="phase1"><div class="phase-head"><div class="phase-icon">🌐</div><div class="phase-title">Site Analysis & Location</div><span class="phase-badge badge-wait" id="b1">Waiting</span></div><div class="phase-body hidden" id="pb1"></div></div>
-    <div class="phase" id="phase2"><div class="phase-head"><div class="phase-icon">🎯</div><div class="phase-title">Top Keyword Opportunities</div><span class="phase-badge badge-wait" id="b2">Waiting</span></div><div class="phase-body hidden" id="pb2"></div></div>
-    <div class="phase" id="phase3"><div class="phase-head"><div class="phase-icon">✍️</div><div class="phase-title">High-CTR Blog Post</div><span class="phase-badge badge-wait" id="b3">Waiting</span></div><div class="phase-body hidden" id="pb3"></div></div>
-    <div class="phase" id="phase4"><div class="phase-head"><div class="phase-icon">📊</div><div class="phase-title">SEO Optimisation Score</div><span class="phase-badge badge-wait" id="b4">Waiting</span></div><div class="phase-body hidden" id="pb4"></div></div>
-  </div>
-</div>
+    .gallery-container {
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
 
-<script>
-  let generatedBlog = '';
+    .section-heading {
+      text-align: center;
+      margin: 0 auto 40px auto;
+      padding: 20px 24px 0 24px;
+      max-width: 1200px;
+    }
 
-  function setBadge(id, type, text) {
-    const el = document.getElementById(id);
-    if (el) { el.className = `phase-badge badge-${type}`; el.textContent = text; }
-  }
+    .section-heading h2 {
+      font-size: 40px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 15px;
+      position: relative;
+      display: inline-block;
+      letter-spacing: 1px;
+    }
 
-  function setPhaseRunning(id, running) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('running', running);
-  }
+    .section-heading h2 span {
+      color: #d46721;
+    }
 
-  function setStep(step) {
-    for (let i = 1; i <= 4; i++) {
-      const s = document.getElementById(`s${i}`);
-      if (s) {
-        if (i < step) s.className = 'step done';
-        else if (i === step) s.className = 'step active';
-        else s.className = 'step';
+    .section-heading p {
+      font-size: 18px;
+      color: #cccccc;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* =========== DESKTOP LAYOUT (default - hover expand flex) =========== */
+    .desktop-gallery {
+      display: flex;
+      width: 100%;
+    }
+
+    .desktop-gallery .gallery_wrap {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 40vh;
+      min-height: 420px;
+      overflow: hidden;
+    }
+
+    .desktop-gallery .gallery_img {
+      flex: 1;
+      height: 100%;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      transition: flex 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .desktop-gallery .gallery_img:hover {
+      flex: 7;
+    }
+
+    .desktop-gallery .gallery_img h3 {
+      position: absolute;
+      bottom: 20px;
+      left: 25px;
+      color: #ffe7c9;
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      z-index: 2;
+      margin: 0;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+
+    .desktop-gallery .overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: #fff;
+      width: 188px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      transition: transform 0.3s ease;
+      transform: scale(0);
+      transform-origin: bottom right;
+      border-top-left-radius: 12px;
+      box-shadow: -4px -2px 12px rgba(0,0,0,0.2);
+      z-index: 5;
+    }
+
+    .desktop-gallery .gallery_img:hover .overlay {
+      transform: scale(1);
+    }
+
+    .desktop-gallery .overlay a {
+      color: #1a1a1a;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .desktop-gallery .overlay a i {
+      color: #ffffff;
+      font-size: 19px;
+      background-color: #ae8d45;
+      padding: 7px;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      transition: 0.2s;
+    }
+
+    .desktop-gallery .overlay a:hover i {
+      background-color: #d46721;
+      transform: scale(1.05);
+    }
+
+    /* =========== MOBILE LAYOUT (Swiper Carousel - hidden on desktop) =========== */
+    .mobile-gallery {
+      display: none;
+      width: 100%;
+    }
+
+    .mobile-gallery .swiper {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .mobile-gallery .swiper-slide {
+      width: 100%;
+      height: auto;
+    }
+
+    .mobile-gallery .gallery-card {
+      position: relative;
+      width: 100%;
+      height: 55vh;
+      min-height: 400px;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      border-radius: 0;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+    }
+
+    .mobile-gallery .gallery-card h3 {
+      position: absolute;
+      bottom: 20px;
+      left: 25px;
+      color: #ffe7c9;
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      z-index: 2;
+      margin: 0;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+
+    .mobile-gallery .overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: #fff;
+      width: 188px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      display: flex;
+      border-top-left-radius: 12px;
+      box-shadow: -4px -2px 12px rgba(0,0,0,0.2);
+      z-index: 5;
+      /* on mobile, overlay always visible but subtle */
+      opacity: 0.9;
+    }
+
+    .mobile-gallery .overlay a {
+      color: #1a1a1a;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .mobile-gallery .overlay a i {
+      color: #ffffff;
+      font-size: 18px;
+      background-color: #ae8d45;
+      padding: 6px;
+      border-radius: 50%;
+    }
+
+    /* Swiper navigation & pagination for mobile */
+    .mobile-gallery .swiper-button-next,
+    .mobile-gallery .swiper-button-prev {
+      color: #d46721;
+      background: rgba(0,0,0,0.5);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      backdrop-filter: blur(4px);
+    }
+    .mobile-gallery .swiper-button-next:after,
+    .mobile-gallery .swiper-button-prev:after {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .mobile-gallery .swiper-pagination-bullet {
+      background: #fff;
+      opacity: 0.6;
+    }
+    .mobile-gallery .swiper-pagination-bullet-active {
+      background: #d46721;
+      opacity: 1;
+    }
+
+    /* Image backgrounds for both layouts */
+    .gallery_img_1, .card-bg-1 { background-image: url('https://picsum.photos/id/104/1600/1200'); background-size: cover; background-position: center; }
+    .gallery_img_2, .card-bg-2 { background-image: url('https://picsum.photos/id/106/1600/1200'); background-size: cover; background-position: center; }
+    .gallery_img_3, .card-bg-3 { background-image: url('https://picsum.photos/id/107/1600/1200'); background-size: cover; background-position: center; }
+    .gallery_img_4, .card-bg-4 { background-image: url('https://picsum.photos/id/116/1600/1200'); background-size: cover; background-position: center; }
+    .gallery_img_5, .card-bg-5 { background-image: url('https://picsum.photos/id/119/1600/1200'); background-size: cover; background-position: center; }
+    .gallery_img_6, .card-bg-6 { background-image: url('https://picsum.photos/id/20/1600/1200'); background-size: cover; background-position: center; }
+
+    /* Responsive breakpoint: switch at 992px (tablet/mobile) */
+    @media only screen and (max-width: 991px) {
+      .desktop-gallery {
+        display: none !important;
+      }
+      .mobile-gallery {
+        display: block !important;
+      }
+      .section-heading h2 {
+        font-size: 32px;
+      }
+      .section-heading p {
+        font-size: 15px;
+      }
+      .mobile-gallery .gallery-card {
+        height: 50vh;
+        min-height: 380px;
+      }
+      .mobile-gallery .gallery-card h3 {
+        font-size: 26px;
+        bottom: 15px;
+        left: 18px;
+      }
+      .mobile-gallery .overlay {
+        width: 150px !important;
+        height: 36px !important;
       }
     }
-  }
 
-  function showBody(id, html) {
-    const el = document.getElementById(id);
-    if (el) { el.innerHTML = html; el.classList.remove('hidden'); }
-  }
-
-  function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-  // Intelligent content generator (no API needed)
-  function generateSiteAnalysis(url) {
-    const domain = url.replace(/https?:\/\//, '').replace(/www\./, '').split('/')[0];
-    const niches = {
-      'shop': 'E-commerce & Retail', 'store': 'Online Retail', 'blog': 'Content Publishing',
-      'tech': 'Technology', 'ai': 'Artificial Intelligence', 'marketing': 'Digital Marketing'
-    };
-    let niche = 'Business & Professional Services';
-    for (const [key, value] of Object.entries(niches)) {
-      if (domain.includes(key)) { niche = value; break; }
+    @media only screen and (max-width: 576px) {
+      .mobile-gallery .gallery-card {
+        height: 48vh;
+        min-height: 320px;
+      }
+      .mobile-gallery .gallery-card h3 {
+        font-size: 20px;
+      }
+      .mobile-gallery .overlay {
+        width: 130px !important;
+        height: 32px !important;
+      }
+      .mobile-gallery .overlay a {
+        font-size: 12px !important;
+      }
+      .mobile-gallery .overlay a i {
+        font-size: 14px;
+        padding: 5px;
+      }
     }
-    return {
-      niche: niche,
-      industry: `Digital ${niche.split(' & ')[0]} Solutions`,
-      target_audience: 'Small business owners, entrepreneurs, and marketing professionals',
-      likely_location: 'United States (Global audience)',
-      google_ranking_status: 'Established domain with growth potential',
-      business_type: niche.includes('E-commerce') ? 'Online Retailer' : 'Service Provider'
-    };
-  }
 
-  function generateKeywords(siteData) {
-    const baseKeyword = siteData.niche.toLowerCase().split(' ')[0];
-    return [
-      { keyword: `${baseKeyword} strategy guide 2026`, intent: 'informational', difficulty: 'Medium', monthly_searches: '2.5K-5K', opportunity: 'High search volume with growing interest in latest trends' },
-      { keyword: `best ${baseKeyword} tools for beginners`, intent: 'commercial', difficulty: 'Low', monthly_searches: '1.2K-2.8K', opportunity: 'Low competition, perfect for quick wins' },
-      { keyword: `how to improve ${baseKeyword} performance`, intent: 'informational', difficulty: 'Medium', monthly_searches: '1.8K-3.5K', opportunity: 'Addresses common pain points, high engagement potential' }
-    ];
-  }
+    .demo-note {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      opacity: 0.7;
+      padding-bottom: 30px;
+    }
+    .device-hint {
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 13px;
+      margin-top: 15px;
+    }
+    .device-hint i {
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
 
-  function generateBlogPost(siteData, keywords, url) {
-    const primaryKw = keywords[0].keyword;
-    const domain = url.replace(/https?:\/\//, '').replace(/www\./, '').split('/')[0];
-    
-    const titles = [
-      `The Ultimate ${primaryKw.split(' ')[0]} Guide: 10 Proven Strategies for 2026`,
-      `Master ${primaryKw.split(' ')[0]}: A Complete Blueprint for Success`,
-      `${primaryKw.split(' ')[0]} Secrets Revealed: How to Get Results Faster`
-    ];
-    
-    const blog = {
-      title: titles[Math.floor(Math.random() * titles.length)],
-      meta_description: `Discover expert ${primaryKw} strategies that actually work. Learn proven techniques, avoid common mistakes, and achieve measurable results starting today.`,
-      word_count: 1500,
-      outline: [
-        `H2: Why ${primaryKw.split(' ')[0]} Matters More Than Ever`,
-        `H2: The 5 Pillars of Effective ${primaryKw.split(' ')[0]}`,
-        `H2: Common Mistakes to Avoid (And What to Do Instead)`,
-        `H2: Advanced Strategies for Maximum Impact`,
-        `H2: Measuring Your Success: Key Metrics That Matter`
-      ],
-      intro: `In today's competitive digital landscape, mastering ${primaryKw} isn't just an advantage—it's a necessity. Whether you're just starting or looking to level up your existing strategy, this comprehensive guide will walk you through everything you need to know. 
+<div class="full-width-gallery">
+  <div class="gallery-container">
+    <div class="section-heading">
+      <h2>Our <span>Gallery</span></h2>
+    </div>
 
-      After working with over 500 businesses in the ${siteData.industry} space, we've identified what actually works (and what's just noise). The strategies below have helped our clients increase engagement by an average of 187% within just 90 days.
-
-      Ready to transform your approach? Let's dive into the proven framework that delivers real, measurable results.`,
-      key_sections: [
-        `📌 **Understanding the Fundamentals**\n\nBefore diving into advanced tactics, let's establish a solid foundation. ${primaryKw} isn't about quick hacks—it's about building sustainable systems. Start by auditing your current approach and identifying gaps. The most successful practitioners focus on consistency over intensity.`,
-        
-        `🎯 **The Actionable Framework**\n\nHere's where theory meets practice. Implement these 5 steps: (1) Define clear, measurable goals, (2) Research what's working in your industry, (3) Create a systematic approach, (4) Test and iterate based on data, (5) Scale what works. This framework has generated over $2.3M in value for our community members.`,
-        
-        `⚡ **Advanced Techniques That Separate Pros from Amateurs**\n\nReady to stand out? Most people stop at the basics. Here's what the top 1% do differently: they leverage micro-optimizations, build feedback loops, and stay ahead of trends. Implement the "compound effect" strategy—small daily improvements that snowball into massive results over time.`,
-        
-        `📊 **Tracking & Optimisation**\n\nYou can't improve what you don't measure. Set up a simple dashboard tracking these 3 core metrics: engagement rate, conversion velocity, and satisfaction score. Review weekly, adjust monthly. The data will tell you exactly where to focus your energy next.`
-      ],
-      conclusion: `The journey to mastering ${primaryKw} doesn't end here—it's just beginning. Start by implementing just ONE strategy from this guide today. Take action, track your results, and iterate. Remember, the best time to start was yesterday. The second best time is now.
-
-      Ready to accelerate your results? Share this guide with your team, bookmar it for reference, and commit to taking consistent action over the next 30 days. I'd love to hear about your progress—drop a comment below or reach out directly. Let's grow together! 🚀`,
-      internal_link_suggestion: `Link to your case studies page using anchor text "real-world examples of successful implementation"`,
-      faq_questions: [
-        `How long does it take to see results with ${primaryKw.split(' ')[0]}?`,
-        `What's the single most important factor for success?`,
-        `Can I implement these strategies without a big budget?`,
-        `How do I stay updated with the latest trends?`
-      ]
-    };
-    return blog;
-  }
-
-  function generateSEOScore() {
-    return {
-      overall: Math.floor(Math.random() * (98 - 92 + 1) + 92),
-      readability: Math.floor(Math.random() * (97 - 90 + 1) + 90),
-      keywords: Math.floor(Math.random() * (99 - 93 + 1) + 93),
-      technical: Math.floor(Math.random() * (96 - 89 + 1) + 89)
-    };
-  }
-
-  function formatBlogText(blog, primaryKw) {
-    return `# ${blog.title}
-
-Meta Description: ${blog.meta_description}
-Target Keyword: ${primaryKw}
-Word Count: ~${blog.word_count}
-
----
-
-## ${blog.outline[0].replace('H2: ', '')}
-
-${blog.intro}
-
-## ${blog.outline[1].replace('H2: ', '')}
-
-${blog.key_sections[0]}
-
-## ${blog.outline[2].replace('H2: ', '')}
-
-${blog.key_sections[1]}
-
-## ${blog.outline[3].replace('H2: ', '')}
-
-${blog.key_sections[2]}
-
-## ${blog.outline[4].replace('H2: ', '')}
-
-${blog.key_sections[3]}
-
-## Conclusion
-
-${blog.conclusion}
-
----
-
-## Frequently Asked Questions
-
-${blog.faq_questions.map((q, i) => `${i+1}. ${q}`).join('\n\n')}
-
----
-
-💡 Internal Linking Tip: ${blog.internal_link_suggestion}
-
----
-Generated by SEO Blog Agent • Optimized for humans and search engines
-`;
-  }
-
-  async function runAgent() {
-    let url = document.getElementById('urlInput').value.trim();
-    if (!url) { alert('Please enter your website URL'); return; }
-    if (!url.startsWith('http')) url = 'https://' + url;
-    
-    const btn = document.getElementById('runBtn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Generating...';
-    document.getElementById('outputArea').classList.add('visible');
-    
-    ['b1','b2','b3','b4'].forEach(id => setBadge(id, 'wait', 'Waiting'));
-    ['pb1','pb2','pb3','pb4'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) { el.innerHTML = ''; el.classList.add('hidden'); }
-    });
-    
-    setStep(1);
-    
-    try {
-      // Phase 1 - Site Analysis
-      setPhaseRunning('phase1', true);
-      setBadge('b1', 'running', 'Analyzing...');
-      showBody('pb1', '<div class="loading-pulse"></div> Scanning website structure and identifying niche...');
-      await sleep(800);
-      
-      const siteData = generateSiteAnalysis(url);
-      setPhaseRunning('phase1', false);
-      showBody('pb1', `
-        <div><b>🏷️ Niche:</b> ${siteData.niche}<br><b>🏢 Industry:</b> ${siteData.industry}<br><b>👥 Target Audience:</b> ${siteData.target_audience}<br><b>💼 Business Type:</b> ${siteData.business_type}</div>
-        <div style="margin-top:10px"><span class="location-badge">📍 ${siteData.likely_location}</span> <span class="location-badge">📈 ${siteData.google_ranking_status}</span></div>
-      `);
-      setBadge('b1', 'done', '✓ Complete');
-      
-      // Phase 2 - Keywords
-      setStep(2);
-      setPhaseRunning('phase2', true);
-      setBadge('b2', 'running', 'Researching...');
-      showBody('pb2', '<div class="loading-pulse"></div> Mining high-value keyword opportunities...');
-      await sleep(700);
-      
-      const keywords = generateKeywords(siteData);
-      setPhaseRunning('phase2', false);
-      showBody('pb2', `<div class="keyword-grid">${keywords.map((k, i) => `
-        <div class="kw-card">
-          <span class="kw-tag">🔑 #${i+1} Pick</span>
-          <div class="kw-name">${escapeHtml(k.keyword)}</div>
-          <div class="kw-meta">📊 ${k.monthly_searches} searches/mo<br>📈 Difficulty: ${k.difficulty} • Intent: ${k.intent}</div>
-          <div style="font-size:0.7rem;margin-top:8px;color:#4a6b60">💡 ${k.opportunity}</div>
-        </div>
-      `).join('')}</div>`);
-      setBadge('b2', 'done', '✓ Complete');
-      
-      // Phase 3 - Blog Generation
-      setStep(3);
-      setPhaseRunning('phase3', true);
-      setBadge('b3', 'running', 'Writing...');
-      showBody('pb3', '<div class="loading-pulse"></div> Crafting SEO-optimized blog post (this takes ~5 seconds)...');
-      await sleep(1500);
-      
-      const blogData = generateBlogPost(siteData, keywords, url);
-      const primaryKw = keywords[0].keyword;
-      generatedBlog = formatBlogText(blogData, primaryKw);
-      
-      setPhaseRunning('phase3', false);
-      showBody('pb3', `
-        <div class="blog-card">
-          <div class="blog-title-display">📝 ${escapeHtml(blogData.title)}</div>
-          <div>
-            <span class="meta-pill pill-green">📄 ${blogData.word_count} words</span>
-            <span class="meta-pill pill-blue">🎯 ${escapeHtml(primaryKw)}</span>
-            <span class="meta-pill pill-amber">🔥 High-CTR Title</span>
-          </div>
-          <div class="meta-desc-box"><b>Meta Description (155 chars):</b><br>${escapeHtml(blogData.meta_description)}</div>
-          <div class="blog-outline"><b>📑 Article Outline:</b><br>${blogData.outline.map(o => `<div class="outline-item">• ${escapeHtml(o.replace('H2: ', ''))}</div>`).join('')}</div>
-          <div class="intro-preview"><b>✨ Introduction Preview:</b><br>${escapeHtml(blogData.intro.substring(0, 280))}...</div>
-          <div class="download-row">
-            <button class="btn-secondary" onclick="copyBlog()">📋 Copy Full Blog</button>
-            <button class="btn-secondary" onclick="downloadBlog()">⬇ Download as .txt</button>
+    <!-- DESKTOP LAYOUT: Horizontal hover-expand (visible on >991px) -->
+    <div class="desktop-gallery">
+      <div class="gallery_wrap">
+        <div class="gallery_img gallery_img_1" data-src="https://picsum.photos/id/104/1600/1200" data-caption="Modern Architecture – Elegant Facade">
+          <h3>01</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/104/1600/1200" data-caption="Natural light & contemporary design">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
           </div>
         </div>
-        <div class="full-blog-preview"><b>📖 Blog Preview (first 600 chars):</b><br>${escapeHtml(generatedBlog.substring(0, 600))}...</div>
-      `);
-      setBadge('b3', 'done', '✓ Complete');
-      
-      // Phase 4 - SEO Score
-      setStep(4);
-      setPhaseRunning('phase4', true);
-      setBadge('b4', 'running', 'Scoring...');
-      await sleep(600);
-      
-      const scores = generateSEOScore();
-      setPhaseRunning('phase4', false);
-      showBody('pb4', `
-        <div class="seo-scores">
-          <div class="score-card"><div class="score-num">${scores.overall}</div><div>Overall SEO</div></div>
-          <div class="score-card"><div class="score-num">${scores.readability}</div><div>Readability</div></div>
-          <div class="score-card"><div class="score-num">${scores.keywords}</div><div>Keyword Use</div></div>
-          <div class="score-card"><div class="score-num">${scores.technical}</div><div>Technical SEO</div></div>
+        <div class="gallery_img gallery_img_2" data-src="https://picsum.photos/id/106/1600/1200" data-caption="Luxury Interior – Spacious Living">
+          <h3>02</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/106/1600/1200" data-caption="High-end finishes and warmth">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
+          </div>
         </div>
-        <div style="padding:0.8rem;background:#e8f3ef;border-radius:12px;font-size:0.75rem;line-height:1.8">
-          ✅ Title length: 52 chars (optimal)<br>
-          ✅ Meta description: 155 chars (perfect)<br>
-          ✅ Keyword density: 1.6% (ideal range)<br>
-          ✅ Headers structure: H1 → H2 → H3 (logical)<br>
-          ✅ FAQ schema ready for rich snippets<br>
-          ✅ Internal linking strategy included<br>
-          ✅ Mobile-responsive formatting<br>
-          ✅ Readability score: Grade 8-9 level
+        <div class="gallery_img gallery_img_3" data-src="https://picsum.photos/id/107/1600/1200" data-caption="Rooftop Infinity Pool & Skyline">
+          <h3>03</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/107/1600/1200" data-caption="Relaxation meets panoramic views">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
+          </div>
         </div>
-        <div style="margin-top:12px;padding:10px;background:#f0f4ec;border-radius:12px;text-align:center;font-size:0.75rem">
-          🎯 <strong>SEO Recommendation:</strong> Publish immediately, add 2-3 external authoritative backlinks, and promote on social media within 24 hours for maximum initial traction.
+        <div class="gallery_img gallery_img_4" data-src="https://picsum.photos/id/116/1600/1200" data-caption="Master Bedroom Suite – Royal Ambiance">
+          <h3>04</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/116/1600/1200" data-caption="Comfort and elegance combined">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
+          </div>
         </div>
-      `);
-      setBadge('b4', 'done', '✓ Complete');
-      
-    } catch (error) {
-      showBody('pb1', `<div class="error-box">❌ Error: ${error.message}<br><br>Please refresh and try again.</div>`);
-      setBadge('b1', 'error', 'Error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '✨ Generate Blog →';
+        <div class="gallery_img gallery_img_5" data-src="https://picsum.photos/id/119/1600/1200" data-caption="Landscape & Garden Oasis">
+          <h3>05</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/119/1600/1200" data-caption="Lush greenery & serenity">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
+          </div>
+        </div>
+        <div class="gallery_img gallery_img_6" data-src="https://picsum.photos/id/20/1600/1200" data-caption="Modern Kitchen & Dining Space">
+          <h3>06</h3>
+          <div class="overlay">
+            <a href="javascript:;" data-fancybox="desktop-gallery-group" data-src="https://picsum.photos/id/20/1600/1200" data-caption="Innovative design & functionality">
+              <span>View Large</span> <i class="fas fa-expand-alt"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE LAYOUT: Swipeable Carousel (visible on <=991px) -->
+    <div class="mobile-gallery">
+      <div class="swiper mobileSwiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-1" data-src="https://picsum.photos/id/104/1600/1200" data-caption="Modern Architecture – Elegant Facade">
+              <h3>01</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/104/1600/1200" data-caption="Natural light & contemporary design">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-2" data-src="https://picsum.photos/id/106/1600/1200" data-caption="Luxury Interior – Spacious Living">
+              <h3>02</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/106/1600/1200" data-caption="High-end finishes and warmth">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-3" data-src="https://picsum.photos/id/107/1600/1200" data-caption="Rooftop Infinity Pool & Skyline">
+              <h3>03</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/107/1600/1200" data-caption="Breathtaking view & relaxation">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-4" data-src="https://picsum.photos/id/116/1600/1200" data-caption="Master Bedroom Suite">
+              <h3>04</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/116/1600/1200" data-caption="Royal ambiance & comfort">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-5" data-src="https://picsum.photos/id/119/1600/1200" data-caption="Landscape Garden">
+              <h3>05</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/119/1600/1200" data-caption="Serene outdoor spaces">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="swiper-slide">
+            <div class="gallery-card card-bg-6" data-src="https://picsum.photos/id/20/1600/1200" data-caption="Modern Kitchen">
+              <h3>06</h3>
+              <div class="overlay">
+                <a href="javascript:;" data-fancybox="mobile-gallery-group" data-src="https://picsum.photos/id/20/1600/1200" data-caption="State-of-the-art design">
+                  <span>View Large</span> <i class="fas fa-expand-alt"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+<script>
+  (function() {
+    // Helper to detect if mobile layout is active (based on CSS media query)
+    function isMobileLayout() {
+      return window.innerWidth <= 991;
     }
-  }
-  
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
+    
+    // Update hint text based on layout
+    function updateLayoutHint() {
+      const hintSpan = document.getElementById('hintText');
+      const desktopNote = document.querySelector('.desktop-note');
+      const mobileNote = document.querySelector('.mobile-note');
+      if (isMobileLayout()) {
+        if (hintSpan) hintSpan.innerHTML = '<i class="fas fa-mobile-alt"></i> Mobile: Swipe to navigate • Tap image';
+        if (desktopNote) desktopNote.style.display = 'none';
+        if (mobileNote) mobileNote.style.display = 'inline';
+      } else {
+        if (hintSpan) hintSpan.innerHTML = '<i class="fas fa-desktop"></i> Desktop: Hover to expand images';
+        if (desktopNote) desktopNote.style.display = 'inline';
+        if (mobileNote) mobileNote.style.display = 'none';
+      }
+    }
+    
+    // Initialize Fancybox for both desktop and mobile groups
+    // Desktop group
+    if (document.querySelectorAll('[data-fancybox="desktop-gallery-group"]').length) {
+      Fancybox.bind('[data-fancybox="desktop-gallery-group"]', {
+        groupAll: true,
+        infinite: false,
+        protect: true,
+        Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } },
+        Thumbs: { autoStart: false },
+        animated: true,
+        dragToClose: true,
+      });
+    }
+    
+    // Mobile group
+    if (document.querySelectorAll('[data-fancybox="mobile-gallery-group"]').length) {
+      Fancybox.bind('[data-fancybox="mobile-gallery-group"]', {
+        groupAll: true,
+        infinite: true,
+        protect: true,
+        Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } },
+        Thumbs: { autoStart: false },
+        animated: true,
+        dragToClose: true,
+      });
+    }
+    
+    // Initialize Swiper for mobile (only when mobile layout exists)
+    let mobileSwiper = null;
+    function initMobileSwiper() {
+      if (document.querySelector('.mobile-gallery .swiper') && !mobileSwiper) {
+        mobileSwiper = new Swiper('.mobileSwiper', {
+          slidesPerView: 1,
+          spaceBetween: 0,
+          loop: true,
+          grabCursor: true,
+          touchRatio: 1,
+          resistanceRatio: 0.85,
+          pagination: { el: '.swiper-pagination', clickable: true, dynamicBullets: true },
+          navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+          keyboard: { enabled: true },
+          speed: 400,
+          effect: 'slide',
+        });
+      }
+    }
+    
+    // Add click/tap on mobile gallery cards to open lightbox (in addition to overlay)
+    function bindMobileCardTap() {
+      const mobileCards = document.querySelectorAll('.mobile-gallery .gallery-card');
+      mobileCards.forEach(card => {
+        card.removeEventListener('click', handleMobileCardClick);
+        card.addEventListener('click', handleMobileCardClick);
+      });
+    }
+    
+    function handleMobileCardClick(e) {
+      if (e.target.closest('.overlay')) return;
+      const src = card.getAttribute('data-src');
+      const caption = card.getAttribute('data-caption') || 'Gallery Image';
+      if (!src) return;
+      
+      // Gather all mobile slides for gallery array
+      const allSlides = [];
+      document.querySelectorAll('.mobile-gallery .gallery-card').forEach(c => {
+        let s = c.getAttribute('data-src');
+        let cap = c.getAttribute('data-caption') || 'Image';
+        if (s) allSlides.push({ src: s, caption: cap });
+      });
+      let startIndex = allSlides.findIndex(slide => slide.src === src);
+      if (startIndex === -1) startIndex = 0;
+      
+      Fancybox.show(allSlides, {
+        startIndex: startIndex,
+        groupAll: true,
+        infinite: true,
+        protect: true,
+        Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } },
+        Carousel: { infinite: true }
+      });
+    }
+    
+    // Also bind desktop cards to open lightbox on click (excluding overlay area)
+    function bindDesktopCardClick() {
+      const desktopCards = document.querySelectorAll('.desktop-gallery .gallery_img');
+      desktopCards.forEach(card => {
+        card.removeEventListener('click', handleDesktopCardClick);
+        card.addEventListener('click', handleDesktopCardClick);
+      });
+    }
+    
+    function handleDesktopCardClick(e) {
+      if (e.target.closest('.overlay')) return;
+      const src = card.getAttribute('data-src');
+      const caption = card.getAttribute('data-caption') || 'Gallery Image';
+      if (!src) return;
+      
+      const allSlides = [];
+      document.querySelectorAll('.desktop-gallery .gallery_img').forEach(c => {
+        let s = c.getAttribute('data-src');
+        let cap = c.getAttribute('data-caption') || 'Image';
+        if (s) allSlides.push({ src: s, caption: cap });
+      });
+      let startIndex = allSlides.findIndex(slide => slide.src === src);
+      if (startIndex === -1) startIndex = 0;
+      
+      Fancybox.show(allSlides, {
+        startIndex: startIndex,
+        groupAll: true,
+        infinite: false,
+        protect: true,
+        Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } }
+      });
+    }
+    
+    // Ensure overlay links within desktop also have proper data attributes already set.
+    // Also, fix variable reference in handlers
+    function bindAll() {
+      bindDesktopCardClick();
+      bindMobileCardTap();
+    }
+    
+    // Initialize on load and resize to ensure swiper only loads when needed
+    window.addEventListener('load', () => {
+      updateLayoutHint();
+      if (isMobileLayout()) {
+        initMobileSwiper();
+      }
+      bindAll();
     });
-  }
-  
-  function copyBlog() {
-    if (generatedBlog) {
-      navigator.clipboard.writeText(generatedBlog);
-      alert('✅ Blog post copied to clipboard!');
+    
+    window.addEventListener('resize', () => {
+      updateLayoutHint();
+      if (isMobileLayout()) {
+        if (!mobileSwiper) initMobileSwiper();
+        else mobileSwiper.update();
+      } else {
+        if (mobileSwiper) {
+          mobileSwiper.destroy(true, true);
+          mobileSwiper = null;
+        }
+      }
+      bindAll();
+    });
+    
+    // Extra: assign card variable properly in handlers (re-declare inside each)
+    // Fix handler scope
+    function handleDesktopCardClick(e) {
+      const card = e.currentTarget;
+      if (e.target.closest('.overlay')) return;
+      const src = card.getAttribute('data-src');
+      const caption = card.getAttribute('data-caption') || 'Gallery Image';
+      if (!src) return;
+      const allSlides = [];
+      document.querySelectorAll('.desktop-gallery .gallery_img').forEach(c => {
+        let s = c.getAttribute('data-src');
+        let cap = c.getAttribute('data-caption') || 'Image';
+        if (s) allSlides.push({ src: s, caption: cap });
+      });
+      let startIndex = allSlides.findIndex(slide => slide.src === src);
+      if (startIndex === -1) startIndex = 0;
+      Fancybox.show(allSlides, { startIndex, groupAll: true, infinite: false, protect: true, Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } } });
     }
-  }
-  
-  function downloadBlog() {
-    if (generatedBlog) {
-      const blob = new Blob([generatedBlog], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `seo-blog-${Date.now()}.txt`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+    
+    function handleMobileCardClick(e) {
+      const card = e.currentTarget;
+      if (e.target.closest('.overlay')) return;
+      const src = card.getAttribute('data-src');
+      const caption = card.getAttribute('data-caption') || 'Gallery Image';
+      if (!src) return;
+      const allSlides = [];
+      document.querySelectorAll('.mobile-gallery .gallery-card').forEach(c => {
+        let s = c.getAttribute('data-src');
+        let cap = c.getAttribute('data-caption') || 'Image';
+        if (s) allSlides.push({ src: s, caption: cap });
+      });
+      let startIndex = allSlides.findIndex(slide => slide.src === src);
+      if (startIndex === -1) startIndex = 0;
+      Fancybox.show(allSlides, { startIndex, groupAll: true, infinite: true, protect: true, Toolbar: { display: { right: ["slideShow", "thumbs", "zoom", "fullScreen", "close"] } } });
     }
-  }
-  
-  document.getElementById('runBtn').onclick = runAgent;
+    
+    // Re-attach correct handlers
+    window.bindDesktopCardClick = function() {
+      document.querySelectorAll('.desktop-gallery .gallery_img').forEach(card => {
+        card.removeEventListener('click', handleDesktopCardClick);
+        card.addEventListener('click', handleDesktopCardClick);
+      });
+    };
+    window.bindMobileCardTap = function() {
+      document.querySelectorAll('.mobile-gallery .gallery-card').forEach(card => {
+        card.removeEventListener('click', handleMobileCardClick);
+        card.addEventListener('click', handleMobileCardClick);
+      });
+    };
+    window.bindDesktopCardClick();
+    window.bindMobileCardTap();
+    
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.documentElement.style.overflowX = 'hidden';
+  })();
 </script>
 </body>
 </html>
