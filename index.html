@@ -196,14 +196,27 @@
             width: 100%;
             height: 320px;
         }
+        /* For location chart with many bars - enable scroll for container, chart itself responsive */
+        .chart-container-location {
+            width: 100%;
+            height: 340px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        #locationChart {
+            min-width: 100%;
+            height: 320px;
+        }
         .two-charts-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 0.85fr;
             gap: 25px;
+            align-items: stretch;
         }
         @media (max-width: 900px) {
             .two-charts-row { grid-template-columns: 1fr; }
-            .chart-container { height: 280px; }
+            .chart-container, .chart-container-location { height: 280px; }
+            #locationChart { min-width: 600px; }
         }
         
         .projects-section { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px var(--shadow); margin-top: 10px; }
@@ -287,12 +300,15 @@
         </div>
         <div class="two-charts-row">
             <div class="chart-card">
-                <div class="chart-title">📍 Leads by Location (Top 10)</div>
-                <div id="locationChart" class="chart-container"></div>
+                <div class="chart-title">📍 Leads by Location (All Locations)</div>
+                <div class="chart-container-location">
+                    <div id="locationChart" style="min-width: max(100%, 700px); height: 320px;"></div>
+                </div>
+                <div style="font-size: 10px; color: var(--text3); text-align: center; margin-top: 6px;">← Scroll horizontally to see all locations →</div>
             </div>
             <div class="chart-card">
                 <div class="chart-title">🍥 Leads by Source</div>
-                <div id="sourcePieChart" class="chart-container"></div>
+                <div id="sourcePieChart" class="chart-container" style="height: 310px;"></div>
             </div>
         </div>
     </div>
@@ -333,24 +349,43 @@
     
     function renderCharts(leads) {
         if (!timeseriesChart) initCharts();
-        // Timeseries: group by date (YYYY-MM-DD)
+        // Timeseries: group by date
         const dateMap = new Map();
         leads.forEach(l => { let d = parseFlexibleDate(l[0]); if (d) { let key = d.toISOString().split('T')[0]; dateMap.set(key, (dateMap.get(key)||0)+1); } });
         const sortedDates = Array.from(dateMap.keys()).sort();
         const tsData = sortedDates.map(d => dateMap.get(d));
-        timeseriesChart.setOption({ xAxis: { data: sortedDates, axisLabel: { rotate: 35, fontSize: 10 } }, series: [{ name: 'Leads', data: tsData, type: 'line', smooth: true, areaStyle: { opacity: 0.2 }, lineStyle: { width: 2, color: '#3b82f6' }, symbol: 'circle', symbolSize: 6 }] });
+        timeseriesChart.setOption({ xAxis: { data: sortedDates, axisLabel: { rotate: 35, fontSize: 10, interval: Math.ceil(sortedDates.length / 10) } }, series: [{ name: 'Leads', data: tsData, type: 'line', smooth: true, areaStyle: { opacity: 0.2 }, lineStyle: { width: 2, color: '#3b82f6' }, symbol: 'circle', symbolSize: 6 }] });
         
-        // Location Bar Chart (Top 10)
+        // Location Bar Chart - ALL locations, sorted descending, horizontal scroll enabled via container
         const locCount = new Map();
         leads.forEach(l => { let loc = l[3] || 'Unknown'; locCount.set(loc, (locCount.get(loc)||0)+1); });
-        const sortedLocs = Array.from(locCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,10);
-        locationChart.setOption({ xAxis: { type: 'category', data: sortedLocs.map(v=>v[0]), axisLabel: { rotate: 30, interval: 0, fontSize: 10 } }, yAxis: { type: 'value', name: 'Leads' }, series: [{ data: sortedLocs.map(v=>v[1]), type: 'bar', itemStyle: { borderRadius: [6,6,0,0], color: '#8b5cf6' }, barWidth: '60%' }] });
+        const sortedLocs = Array.from(locCount.entries()).sort((a,b) => b[1] - a[1]);
+        const locNames = sortedLocs.map(v => v[0]);
+        const locValues = sortedLocs.map(v => v[1]);
+        // dynamic min-width based on number of categories (each ~60px)
+        const chartWidth = Math.max(700, locNames.length * 55);
+        document.getElementById('locationChart').style.minWidth = chartWidth + 'px';
+        locationChart.setOption({
+            xAxis: { type: 'category', data: locNames, axisLabel: { rotate: 45, interval: 0, fontSize: 10, width: 80, overflow: 'break' } },
+            yAxis: { type: 'value', name: 'Leads Count' },
+            series: [{ data: locValues, type: 'bar', itemStyle: { borderRadius: [6,6,0,0], color: '#8b5cf6' }, barWidth: '70%' }],
+            grid: { containLabel: true, left: 50, right: 20, top: 40, bottom: 60 }
+        });
         
-        // Source Pie Chart
+        // Source Pie Chart - more accurate sizing, reduced width feeling by adjusting radius and center
         const srcCount = new Map();
         leads.forEach(l => { let src = l[2] || 'Unknown'; srcCount.set(src, (srcCount.get(src)||0)+1); });
         const pieData = Array.from(srcCount.entries()).map(([n,v]) => ({ name: n, value: v }));
-        sourcePieChart.setOption({ series: [{ data: pieData, type: 'pie', radius: '55%', center: ['50%', '50%'], label: { show: true, formatter: '{b}: {d}%', fontSize: 11, fontWeight: 'normal' }, emphasis: { scale: true }, itemStyle: { borderRadius: 8, borderColor: 'var(--s1)', borderWidth: 2 } }] });
+        // sort pie slices descending for better readability
+        pieData.sort((a,b) => b.value - a.value);
+        sourcePieChart.setOption({
+            series: [{
+                data: pieData, type: 'pie', radius: ['35%', '60%'], center: ['50%', '55%'],
+                label: { show: true, formatter: '{b}: {d}%', fontSize: 11, fontWeight: 'normal', overflow: 'break' },
+                emphasis: { scale: true }, itemStyle: { borderRadius: 8, borderColor: 'var(--s1)', borderWidth: 2 },
+                avoidLabelOverlap: true, labelLine: { length: 8, length2: 8, smooth: true }
+            }]
+        });
     }
     function initCharts() {
         let themeColors = getComputedStyle(document.documentElement);
