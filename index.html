@@ -81,7 +81,7 @@
         .dropdown-option { padding: 8px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
         .dropdown-option:hover { background: var(--s2); }
         .dropdown-option input[type="checkbox"] { width: 16px; height: 16px; margin: 0; cursor: pointer; accent-color: var(--blue); min-width: 16px; }
-        .dropdown-option label { cursor: pointer; flex: 1; font-size: 13px; color: var(--text); }
+        .dropdown-option label, .dropdown-option span { cursor: pointer; flex: 1; font-size: 13px; color: var(--text); user-select: none; }
         .dropdown-actions { padding: 8px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: space-between; position: sticky; bottom: 0; background: var(--s1); }
         .dropdown-actions button { padding: 4px 10px; font-size: 11px; background: var(--s2); color: var(--text2); border: 1px solid var(--border); transform: none; }
         .dropdown-actions button:hover { background: var(--blue); color: white; }
@@ -605,8 +605,8 @@
     // Dynamic clean rendering logic for all 3 Premium interactive charts!
     function renderCharts(leads) {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const gridColor = isDark ? '#1e2d45' : '#d1ddf0';
-        const textColor = isDark ? '#94a3b8' : '#475569';
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+        const textColor = isDark ? '#f1f5f9' : '#334155';
         
         // ---------------------------------
         // 1. Process & Draw Timeseries Chart
@@ -626,7 +626,7 @@
         const sortedDates = Object.keys(dailyCounts).sort();
         const tsLabels = sortedDates.map(dateStr => {
             const [yr, mo, dy] = dateStr.split('-');
-            return `${dy}/${mo}`;
+            return `${dy}/${mo}/${yr}`;
         });
         const tsValues = sortedDates.map(key => dailyCounts[key]);
 
@@ -654,8 +654,8 @@
                     pointBackgroundColor: '#3b82f6',
                     pointBorderColor: isDark ? '#060a12' : '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: tsValues.length > 50 ? 1 : 4,
-                    pointHoverRadius: 6,
+                    pointRadius: tsValues.length > 50 ? 2 : 5,
+                    pointHoverRadius: 8,
                     pointHoverBackgroundColor: '#3b82f6',
                     pointHoverBorderColor: '#ffffff',
                     pointHoverBorderWidth: 2
@@ -664,13 +664,17 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: isDark ? '#0d1420' : '#ffffff',
-                        titleColor: isDark ? '#e2e8f0' : '#0f172a',
-                        bodyColor: isDark ? '#94a3b8' : '#475569',
-                        borderColor: isDark ? '#1e2d45' : '#d1ddf0',
+                        backgroundColor: isDark ? '#111c2e' : '#ffffff',
+                        titleColor: isDark ? '#ffffff' : '#0f172a',
+                        bodyColor: isDark ? '#f1f5f9' : '#334155',
+                        borderColor: isDark ? '#243553' : '#cbd5e1',
                         borderWidth: 1,
                         padding: 12,
                         cornerRadius: 8,
@@ -681,11 +685,11 @@
                 scales: {
                     x: {
                         grid: { display: false }, // modern border-less vertical grid lines
-                        ticks: { color: textColor, font: { size: 10, family: 'system-ui' }, autoSkip: true, maxTicksLimit: 15 }
+                        ticks: { color: textColor, font: { size: 10, family: 'system-ui', weight: '600' }, autoSkip: true, maxTicksLimit: 15 }
                     },
                     y: {
                         grid: { color: gridColor, drawBorder: false, borderDash: [4, 4] }, // dashed line style
-                        ticks: { color: textColor, font: { size: 10, family: 'JetBrains Mono', weight: '500' }, stepSize: 1, precision: 0 }
+                        ticks: { color: textColor, font: { size: 10, family: 'JetBrains Mono', weight: '600' }, stepSize: 1, precision: 0 }
                     }
                 }
             }
@@ -732,10 +736,10 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: isDark ? '#0d1420' : '#ffffff',
-                        titleColor: isDark ? '#e2e8f0' : '#0f172a',
-                        bodyColor: isDark ? '#94a3b8' : '#475569',
-                        borderColor: isDark ? '#1e2d45' : '#d1ddf0',
+                        backgroundColor: isDark ? '#111c2e' : '#ffffff',
+                        titleColor: isDark ? '#ffffff' : '#0f172a',
+                        bodyColor: isDark ? '#f1f5f9' : '#334155',
+                        borderColor: isDark ? '#243553' : '#cbd5e1',
                         borderWidth: 1,
                         padding: 12,
                         cornerRadius: 8,
@@ -746,11 +750,11 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: textColor, font: { size: 9, family: 'system-ui', weight: '500' }, maxRotation: 40, minRotation: 40 }
+                        ticks: { color: textColor, font: { size: 9, family: 'system-ui', weight: '600' }, maxRotation: 40, minRotation: 40 }
                     },
                     y: {
                         grid: { color: gridColor, drawBorder: false, borderDash: [4, 4] },
-                        ticks: { color: textColor, font: { size: 10, family: 'JetBrains Mono', weight: '500' }, stepSize: 1, precision: 0 }
+                        ticks: { color: textColor, font: { size: 10, family: 'JetBrains Mono', weight: '600' }, stepSize: 1, precision: 0 }
                     }
                 }
             }
@@ -797,13 +801,13 @@
                 
                 // 1. Draw small uppercase title
                 ctx.font = '600 10px system-ui, -apple-system, sans-serif';
-                ctx.fillStyle = isD ? '#4a5f7a' : '#94a3b8';
+                ctx.fillStyle = isD ? '#cbd5e1' : '#64748b';
                 ctx.fillText('LEADS TOTAL', left + width / 2, top + height / 2 - 12);
                 
                 // 2. Draw big leads metric integer
                 const totalLeads = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                 ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
-                ctx.fillStyle = isD ? '#e2e8f0' : '#0f172a';
+                ctx.fillStyle = isD ? '#ffffff' : '#0f172a';
                 ctx.fillText(totalLeads.toLocaleString(), left + width / 2, top + height / 2 + 10);
                 ctx.restore();
             }
@@ -832,14 +836,14 @@
                             color: textColor,
                             boxWidth: 9,
                             padding: 10,
-                            font: { size: 10, family: 'system-ui', weight: '500' }
+                            font: { size: 10, family: 'system-ui', weight: '600' }
                         }
                     },
                     tooltip: {
-                        backgroundColor: isDark ? '#0d1420' : '#ffffff',
-                        titleColor: isDark ? '#e2e8f0' : '#0f172a',
-                        bodyColor: isDark ? '#94a3b8' : '#475569',
-                        borderColor: isDark ? '#1e2d45' : '#d1ddf0',
+                        backgroundColor: isDark ? '#111c2e' : '#ffffff',
+                        titleColor: isDark ? '#ffffff' : '#0f172a',
+                        bodyColor: isDark ? '#f1f5f9' : '#334155',
+                        borderColor: isDark ? '#243553' : '#cbd5e1',
                         borderWidth: 1,
                         padding: 11,
                         cornerRadius: 8,
@@ -1030,10 +1034,10 @@
         const items = getAllLocations().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <div class="dropdown-option">
-                <input type="checkbox" id="loc_${CSS.escape(v)}" value="${escapeHtml(v)}" ${selectedLocations.has(v)?'checked':''}>
-                <label for="loc_${CSS.escape(v)}">${escapeHtml(v)}</label>
-            </div>`).join('');
+            <label class="dropdown-option">
+                <input type="checkbox" value="${escapeHtml(v)}" ${selectedLocations.has(v)?'checked':''}>
+                <span>${escapeHtml(v)}</span>
+            </label>`).join('');
         container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
             selectedLocations[cb.checked ? 'add' : 'delete'](cb.value);
             updateLocationButtonText(); renderDashboard();
@@ -1046,10 +1050,10 @@
         const items = getAllSources().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <div class="dropdown-option">
-                <input type="checkbox" id="src_${CSS.escape(v)}" value="${escapeHtml(v)}" ${selectedSources.has(v)?'checked':''}>
-                <label for="src_${CSS.escape(v)}">${escapeHtml(v)}</label>
-            </div>`).join('');
+            <label class="dropdown-option">
+                <input type="checkbox" value="${escapeHtml(v)}" ${selectedSources.has(v)?'checked':''}>
+                <span>${escapeHtml(v)}</span>
+            </label>`).join('');
         container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
             selectedSources[cb.checked ? 'add' : 'delete'](cb.value);
             updateSourceButtonText(); renderDashboard();
@@ -1062,10 +1066,10 @@
         const items = getAllProjects().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <div class="dropdown-option">
-                <input type="checkbox" id="proj_${CSS.escape(v)}" value="${escapeHtml(v)}" ${selectedProjects.has(v)?'checked':''}>
-                <label for="proj_${CSS.escape(v)}">${escapeHtml(v)}</label>
-            </div>`).join('');
+            <label class="dropdown-option">
+                <input type="checkbox" value="${escapeHtml(v)}" ${selectedProjects.has(v)?'checked':''}>
+                <span>${escapeHtml(v)}</span>
+            </label>`).join('');
         container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
             selectedProjects[cb.checked ? 'add' : 'delete'](cb.value);
             updateProjectButtonText(); renderDashboard();
