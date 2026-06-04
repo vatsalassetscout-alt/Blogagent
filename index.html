@@ -1303,8 +1303,21 @@
             return;
         }
 
+        const projectMap = new Map();
+        leads.forEach(r => {
+            if (!r[1]) return;
+            if (!projectMap.has(r[1])) projectMap.set(r[1], { count: 0, location: r[3] || 'Unknown' });
+            projectMap.get(r[1]).count++;
+        });
+        const sorted = Array.from(projectMap.entries()).sort((a,b) => b[1].count - a[1].count);
+
+        if (!sorted.length) {
+            alert("No project data available to export under active filters.");
+            return;
+        }
+
         // CSV Header
-        const headers = ["Timestamp", "Project Name", "Lead Source", "Location"];
+        const headers = ["Project Name", "Location", "Lead Count"];
         
         // Escape helper for CSV cells
         function escapeCSV(val) {
@@ -1321,12 +1334,11 @@
             headers.join(",")
         ];
 
-        leads.forEach(r => {
+        sorted.forEach(([name, data]) => {
             const rowStr = [
-                escapeCSV(r[0]),
-                escapeCSV(r[1]),
-                escapeCSV(r[2]),
-                escapeCSV(r[3])
+                escapeCSV(name),
+                escapeCSV(data.location),
+                escapeCSV(data.count)
             ].join(",");
             rows.push(rowStr);
         });
@@ -1342,7 +1354,7 @@
         const now = new Date();
         const dateStr = now.toISOString().split('T')[0];
         const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-        link.setAttribute("download", `AssetScout_Leads_${dateStr}_${timeStr}.csv`);
+        link.setAttribute("download", `AssetScout_Projects_Export_${dateStr}_${timeStr}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
