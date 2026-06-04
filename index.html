@@ -48,22 +48,34 @@
             --logo-filter: none;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
-        body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto; }
-        .container { max-width: 1400px; margin: 0 auto; }
-        .header { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 20px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 4px var(--shadow); position: relative; }
-        h1 { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .logo-img { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); height: 40px; filter: var(--logo-filter); object-fit: contain; }
+        body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto; }
+        .container { max-width: 1400px; margin: 0 auto; width: 100%; }
+        .header { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 4px var(--shadow); position: relative; }
+        h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo-img { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); height: 32px; filter: var(--logo-filter); object-fit: contain; }
         .header-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; position: relative; z-index: 1; }
-        .web-btn { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
-        .web-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
-        .theme-toggle { display: flex; gap: 8px; background: var(--s2); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
-        .theme-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: var(--text2); font-family: inherit; }
+        .web-btn { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+        .web-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,92,246,0.25); }
+        .theme-toggle { display: flex; gap: 4px; background: var(--s2); padding: 3px; border-radius: 10px; border: 1px solid var(--border); }
+        .theme-btn { padding: 4px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: transparent; color: var(--text2); font-family: inherit; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
         .theme-btn.active { background: var(--blue); color: white; }
         .theme-btn:hover:not(.active) { background: var(--s3); color: var(--text); }
-        .filter-bar { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 20px 25px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; box-shadow: 0 1px 4px var(--shadow); }
-        .date-field { display: flex; flex-direction: column; gap: 6px; }
-        .date-field label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.9px; color: var(--text3); }
-        select, button, input[type="date"] { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 13px; background: var(--bg); color: var(--text); font-family: inherit; }
+        
+        /* Sticky wrappers for Filter + Metrics */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: var(--bg);
+            padding-top: 4px;
+            padding-bottom: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-bar { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; box-shadow: 0 1px 4px var(--shadow); }
+        .date-field, .filter-field { display: flex; flex-direction: column; gap: 6px; }
+        .date-field label, .filter-field label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; color: var(--text3); }
+        select, button, input[type="date"] { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 13px; background: var(--bg); color: var(--text); font-family: inherit; height: 38px; display: inline-flex; align-items: center; justify-content: center; }
         select:focus, input[type="date"]:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
         button { background: var(--blue); color: white; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; }
         button:hover { background: var(--blue2); transform: translateY(-1px); }
@@ -75,9 +87,9 @@
         button.export-btn:hover { background: #059669; }
         [data-theme="dark"] ::-webkit-calendar-picker-indicator { filter: invert(1); }
         .multi-select-wrapper, .source-filter-wrapper, .project-filter-wrapper { position: relative; display: inline-block; }
-        .multi-select-btn, .source-filter-btn, .project-filter-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 32px 8px 16px; font-size: 13px; color: var(--text); cursor: pointer; font-family: inherit; min-width: 150px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
-        .multi-select-btn::after, .source-filter-btn::after, .project-filter-btn::after { content: '▼'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text2); }
-        .multi-select-dropdown, .source-filter-dropdown, .project-filter-dropdown { position: absolute; top: 100%; left: 0; background: var(--s1); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; min-width: 220px; max-height: 280px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px var(--shadow); display: none; }
+        .multi-select-btn, .source-filter-btn, .project-filter-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0 32px 0 16px; font-size: 13px; color: var(--text); cursor: pointer; font-family: inherit; min-width: 155px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; height: 38px; display: inline-flex; align-items: center; }
+        .multi-select-btn::after, .source-filter-btn::after, .project-filter-btn::after { content: '▼'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text2); pointer-events: none; }
+        .multi-select-dropdown, .source-filter-dropdown, .project-filter-dropdown { position: absolute; top: 100%; left: 0; background: var(--s1); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; min-width: 220px; max-height: 280px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px var(--shadow); display: none; }
         .multi-select-dropdown.show, .source-filter-dropdown.show, .project-filter-dropdown.show { display: block; }
         .dropdown-search { padding: 8px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--s1); }
         .dropdown-search input { width: 100%; padding: 6px 10px; font-size: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
@@ -87,7 +99,7 @@
         .dropdown-option input[type="checkbox"] { width: 16px; height: 16px; margin: 0; cursor: pointer; accent-color: var(--blue); min-width: 16px; }
         .dropdown-option label, .dropdown-option span { cursor: pointer; flex: 1; font-size: 13px; color: var(--text); user-select: none; }
         .dropdown-actions { padding: 8px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: space-between; position: sticky; bottom: 0; background: var(--s1); }
-        .dropdown-actions button { padding: 4px 10px; font-size: 11px; background: var(--s2); color: var(--text2); border: 1px solid var(--border); transform: none; }
+        .dropdown-actions button { padding: 4px 10px; font-size: 11px; background: var(--s2); color: var(--text2); border: 1px solid var(--border); transform: none; height: 26px; }
         .dropdown-actions button:hover { background: var(--blue); color: white; }
         .zone-slider-wrapper {
             display: flex;
@@ -154,16 +166,16 @@
         .zone-active-text.zone-west span { color: var(--purple); }
         .zone-active-text.zone-mid span { color: var(--blue); }
         .zone-active-text.zone-north span { color: var(--green); }
-        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; box-shadow: 0 1px 4px var(--shadow); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 4px; }
+        .stat-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; text-align: center; box-shadow: 0 1px 4px var(--shadow); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
         .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent-color, var(--blue)); opacity: 0.7; }
         .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color, var(--blue)); }
         .stat-card:nth-child(1) { --accent-color: var(--blue); }
         .stat-card:nth-child(2) { --accent-color: var(--purple); }
         .stat-card:nth-child(3) { --accent-color: var(--green); }
         .stat-card:nth-child(4) { --accent-color: var(--amber); }
-        .stat-number { font-size: 32px; font-weight: 800; font-family: var(--mono); color: var(--accent-color, var(--blue)); line-height: 1.2; }
-        .stat-label { font-size: 11px; margin-top: 6px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
+        .stat-number { font-size: 26px; font-weight: 800; font-family: var(--mono); color: var(--accent-color, var(--blue)); line-height: 1.1; }
+        .stat-label { font-size: 10px; margin-top: 4px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
         
         /* Premium Chart Styles */
         .charts-container {
@@ -270,72 +282,89 @@
             </div>
         </div>
     </div>
-    <div class="filter-bar">
-        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
-            <div class="date-field">
+    <div class="sticky-wrapper">
+        <div class="filter-bar">
+            <div class="filter-field">
                 <label>START DATE</label>
                 <input type="date" id="startDateFilter">
             </div>
-            <div class="date-field">
+            <div class="filter-field">
                 <label>END DATE</label>
                 <input type="date" id="endDateFilter">
             </div>
             <button id="applyDateRangeBtn">Apply Range</button>
-        </div>
-        <div class="project-filter-wrapper">
-            <div class="project-filter-btn" id="projectFilterBtn">All Projects</div>
-            <div class="project-filter-dropdown" id="projectDropdown">
-                <div class="dropdown-search"><input type="text" placeholder="Search project..." id="projectSearch"></div>
-                <div id="projectOptions"></div>
-                <div class="dropdown-actions">
-                    <button id="selectAllProjects">Select All</button>
-                    <button id="clearAllProjects">Clear All</button>
+            
+            <div class="filter-field">
+                <label>PROJECT</label>
+                <div class="project-filter-wrapper">
+                    <div class="project-filter-btn" id="projectFilterBtn">All Projects</div>
+                    <div class="project-filter-dropdown" id="projectDropdown">
+                        <div class="dropdown-search"><input type="text" placeholder="Search project..." id="projectSearch"></div>
+                        <div id="projectOptions"></div>
+                        <div class="dropdown-actions">
+                            <button id="selectAllProjects">Select All</button>
+                            <button id="clearAllProjects">Clear All</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="multi-select-wrapper">
-            <div class="multi-select-btn" id="locationSelectBtn">All Locations</div>
-            <div class="multi-select-dropdown" id="locationDropdown">
-                <div class="dropdown-search"><input type="text" placeholder="Search location..." id="locationSearch"></div>
-                <div id="locationOptions"></div>
-                <div class="dropdown-actions">
-                    <button id="selectAllLocations">Select All</button>
-                    <button id="clearAllLocations">Clear All</button>
+            
+            <div class="filter-field">
+                <label>LOCATION</label>
+                <div class="multi-select-wrapper">
+                    <div class="multi-select-btn" id="locationSelectBtn">All Locations</div>
+                    <div class="multi-select-dropdown" id="locationDropdown">
+                        <div class="dropdown-search"><input type="text" placeholder="Search location..." id="locationSearch"></div>
+                        <div id="locationOptions"></div>
+                        <div class="dropdown-actions">
+                            <button id="selectAllLocations">Select All</button>
+                            <button id="clearAllLocations">Clear All</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="source-filter-wrapper">
-            <div class="source-filter-btn" id="sourceFilterBtn">All Sources</div>
-            <div class="source-filter-dropdown" id="sourceDropdown">
-                <div class="dropdown-search"><input type="text" placeholder="Search source..." id="sourceSearch"></div>
-                <div id="sourceOptions"></div>
-                <div class="dropdown-actions">
-                    <button id="selectAllSources">Select All</button>
-                    <button id="clearAllSources">Clear All</button>
+            
+            <div class="filter-field">
+                <label>SOURCE</label>
+                <div class="source-filter-wrapper">
+                    <div class="source-filter-btn" id="sourceFilterBtn">All Sources</div>
+                    <div class="source-filter-dropdown" id="sourceDropdown">
+                        <div class="dropdown-search"><input type="text" placeholder="Search source..." id="sourceSearch"></div>
+                        <div id="sourceOptions"></div>
+                        <div class="dropdown-actions">
+                            <button id="selectAllSources">Select All</button>
+                            <button id="clearAllSources">Clear All</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="zone-slider-wrapper">
-            <div class="zone-slider-track" id="zoneSliderTrack">
-                <div class="zone-slider-pill zone-mid" id="zonePill"></div>
-                <div class="zone-labels">
-                    <div class="zone-label" id="zoneLabelWest">West</div>
-                    <div class="zone-label active" id="zoneLabelMid">All</div>
-                    <div class="zone-label" id="zoneLabelNorth">North</div>
+            
+            <div class="filter-field">
+                <label>ZONE PUNE</label>
+                <div class="zone-slider-wrapper">
+                    <div class="zone-slider-track" id="zoneSliderTrack">
+                        <div class="zone-slider-pill zone-mid" id="zonePill"></div>
+                        <div class="zone-labels">
+                            <div class="zone-label" id="zoneLabelWest">West</div>
+                            <div class="zone-label active" id="zoneLabelMid">All</div>
+                            <div class="zone-label" id="zoneLabelNorth">North</div>
+                        </div>
+                    </div>
+                    <div class="zone-active-text zone-mid" id="zoneActiveText" style="margin-top: 2px;"><span></span></div>
                 </div>
             </div>
-            <div class="zone-active-text zone-mid" id="zoneActiveText"><span></span></div>
+            
+            <button onclick="resetAllFilters()" class="reset-btn">Reset All</button>
+            <button onclick="exportDataToExcel()" class="export-btn">Export Data 📊</button>
         </div>
-        <button onclick="resetAllFilters()" class="reset-btn">Reset All</button>
-        <button onclick="exportDataToExcel()" class="export-btn">Export Data</button>
-    </div>
-    
-    <!-- 4 Metrics Part -->
-    <div class="stats">
-        <div class="stat-card"><div class="stat-number" id="totalLeads">--</div><div class="stat-label">Total Leads</div></div>
-        <div class="stat-card"><div class="stat-number" id="totalProjects">--</div><div class="stat-label">Projects</div></div>
-        <div class="stat-card"><div class="stat-number" id="totalLocations">--</div><div class="stat-label">Locations</div></div>
-        <div class="stat-card"><div class="stat-number" id="totalSources">--</div><div class="stat-label">Sources</div></div>
+        
+        <!-- 4 Metrics Part -->
+        <div class="stats">
+            <div class="stat-card"><div class="stat-number" id="totalLeads">--</div><div class="stat-label">Total Leads</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalProjects">--</div><div class="stat-label">Projects</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalLocations">--</div><div class="stat-label">Locations</div></div>
+            <div class="stat-card"><div class="stat-number" id="totalSources">--</div><div class="stat-label">Sources</div></div>
+        </div>
     </div>
     
     <!-- Charts Section (Placed Right Below the 4 Metrics) -->
@@ -1179,6 +1208,8 @@
 
     function bindEvents() {
         document.getElementById('applyDateRangeBtn').addEventListener('click', applyDateRange);
+        document.getElementById('startDateFilter').addEventListener('change', applyDateRange);
+        document.getElementById('endDateFilter').addEventListener('change', applyDateRange);
       
         document.getElementById('webDashboardBtn').addEventListener('click', () => window.location.reload());
         window.addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
