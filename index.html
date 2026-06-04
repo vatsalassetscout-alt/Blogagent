@@ -69,6 +69,10 @@
         button:hover { background: var(--blue2); transform: translateY(-1px); }
         button.clear-range { background: var(--text3); }
         button.clear-range:hover { background: var(--text2); }
+        button.reset-btn { background: var(--text3); }
+        button.reset-btn:hover { background: var(--text2); }
+        button.export-btn { background: var(--green); display: inline-flex; align-items: center; gap: 6px; }
+        button.export-btn:hover { background: #059669; }
         [data-theme="dark"] ::-webkit-calendar-picker-indicator { filter: invert(1); }
         .multi-select-wrapper, .source-filter-wrapper, .project-filter-wrapper { position: relative; display: inline-block; }
         .multi-select-btn, .source-filter-btn, .project-filter-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 32px 8px 16px; font-size: 13px; color: var(--text); cursor: pointer; font-family: inherit; min-width: 150px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
@@ -322,7 +326,8 @@
             </div>
             <div class="zone-active-text zone-mid" id="zoneActiveText"><span></span></div>
         </div>
-        <button onclick="resetAllFilters()">Reset All</button>
+        <button onclick="resetAllFilters()" class="reset-btn">Reset All</button>
+        <button onclick="exportDataToExcel()" class="export-btn">Export Data</button>
     </div>
     
     <!-- 4 Metrics Part -->
@@ -396,12 +401,11 @@
 </div>
 
 <script>
-   const SHEET_ID   = "14TBSWEZ4rlIkLECg2MrBCUYFwy8coCzISZUqJW_lCOc";
+    const SHEET_ID = "14TBSWEZ4rlIkLECg2MrBCUYFwy8coCzISZUqJW_lCOc";
     const SHEET_NAME = "Sheet1";
-    const API_KEY    = "AIzaSyBayWQDOC1xhIlrzyzG9pFNEaKKh8wjFhY";
-    
-     const ZONE_LOCATIONS = {
-        west:  [   "Akurdi",
+    const API_KEY = "AIzaSyBayWQDOC1xhIlrzyzG9pFNEaKKh8wjFhY";
+    const ZONE_LOCATIONS = {
+        west: [ "Akurdi",
         "Balewadi",
         "Baner",
         "Bavdhan",
@@ -423,9 +427,9 @@
         "Sus",
         "Tathawade",
         "Thergaon",
-        "Wakad" , "Pimpari"  , "Somatane Phata"],
-        
-        north: [  "Bhosari",
+        "Wakad" , "Pimpari" , "Somatane Phata"],
+       
+        north: [ "Bhosari",
         "Charholi",
         "Chikhali",
         "Chovisawadi",
@@ -1243,6 +1247,59 @@
         document.getElementById('locationSearch')?.addEventListener('input', renderLocationOptions);
         document.getElementById('sourceSearch')?.addEventListener('input', renderSourceOptions);
         document.getElementById('projectSearch')?.addEventListener('input', renderProjectOptions);
+    }
+
+    function exportDataToExcel() {
+        const leads = filterData();
+        if (!leads.length) {
+            alert("No leads data available to export under active filters.");
+            return;
+        }
+
+        // CSV Header
+        const headers = ["Timestamp", "Project Name", "Lead Source", "Location"];
+        
+        // Escape helper for CSV cells
+        function escapeCSV(val) {
+            if (val === null || val === undefined) return "";
+            const str = String(val);
+            if (str.includes(",") || str.includes("\"") || str.includes("\n") || str.includes("\r")) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        }
+
+        // Build Rows
+        const rows = [
+            headers.join(",")
+        ];
+
+        leads.forEach(r => {
+            const rowStr = [
+                escapeCSV(r[0]),
+                escapeCSV(r[1]),
+                escapeCSV(r[2]),
+                escapeCSV(r[3])
+            ].join(",");
+            rows.push(rowStr);
+        });
+
+        // Add Byte Order Mark (BOM) to force Excel to open it correctly in UTF-8
+        const csvContent = "\uFEFF" + rows.join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
+        link.setAttribute("download", `AssetScout_Leads_${dateStr}_${timeStr}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     const savedTheme = localStorage.getItem('leads_theme') || 'dark';
