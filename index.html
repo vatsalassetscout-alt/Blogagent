@@ -396,9 +396,10 @@
 </div>
 
 <script>
-    const SHEET_ID = "14TBSWEZ4rlIkLECg2MrBCUYFwy8coCzISZUqJW_lCOc";
+   const SHEET_ID   = "14TBSWEZ4rlIkLECg2MrBCUYFwy8coCzISZUqJW_lCOc";
     const SHEET_NAME = "Sheet1";
-    const API_KEY = "AIzaSyBayWQDOC1xhIlrzyzG9pFNEaKKh8wjFhY";
+    const API_KEY    = "AIzaSyBayWQDOC1xhIlrzyzG9pFNEaKKh8wjFhY";
+    
     const ZONE_LOCATIONS = {
         west: [ "Akurdi",
         "Balewadi",
@@ -671,26 +672,40 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: isDark ? '#111c2e' : '#ffffff',
-                        titleColor: isDark ? '#ffffff' : '#0f172a',
-                        bodyColor: isDark ? '#f1f5f9' : '#334155',
-                        borderColor: isDark ? '#243553' : '#cbd5e1',
-                        borderWidth: 1,
+                        backgroundColor: isDark ? '#060a12' : '#ffffff',
+                        titleColor: isDark ? '#3b82f6' : '#0f172a',
+                        bodyColor: isDark ? '#ffffff' : '#334155',
+                        borderColor: isDark ? '#3b82f6' : '#cbd5e1',
+                        borderWidth: 1.5,
                         padding: 12,
                         cornerRadius: 8,
                         titleFont: { size: 12, weight: 'bold', family: 'system-ui' },
-                        bodyFont: { size: 12, family: 'system-ui' }
+                        bodyFont: { size: 12, family: 'system-ui' },
+                        callbacks: {
+                            label: function(context) {
+                                return ` Leads Count: ${context.parsed.y}`;
+                            }
+                        }
                     }
                 },
                 scales: {
                     x: {
                         grid: { display: false }, // modern border-less vertical grid lines
-                        ticks: { color: textColor, font: { size: 10, family: 'system-ui', weight: '700' }, autoSkip: true, maxTicksLimit: 12 }
+                        ticks: { color: textColor, font: { size: 11, family: 'system-ui', weight: '700' }, autoSkip: true, maxTicksLimit: 12 }
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: gridColor, drawBorder: false, borderDash: [4, 4] }, // dashed line style
-                        ticks: { color: textColor, font: { size: 11, family: 'JetBrains Mono', weight: '700' }, precision: 0, maxTicksLimit: 5 }
+                        ticks: {
+                            color: textColor,
+                            font: { size: 11, family: 'JetBrains Mono', weight: '700' },
+                            maxTicksLimit: 4,
+                            callback: function(val) {
+                                if (Number.isInteger(val)) {
+                                    return val.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -737,11 +752,11 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: isDark ? '#111c2e' : '#ffffff',
-                        titleColor: isDark ? '#ffffff' : '#0f172a',
-                        bodyColor: isDark ? '#f1f5f9' : '#334155',
-                        borderColor: isDark ? '#243553' : '#cbd5e1',
-                        borderWidth: 1,
+                        backgroundColor: isDark ? '#060a12' : '#ffffff',
+                        titleColor: isDark ? '#8b5cf6' : '#0f172a',
+                        bodyColor: isDark ? '#ffffff' : '#334155',
+                        borderColor: isDark ? '#8b5cf6' : '#cbd5e1',
+                        borderWidth: 1.5,
                         padding: 12,
                         cornerRadius: 8,
                         titleFont: { size: 12, weight: 'bold', family: 'system-ui' },
@@ -751,12 +766,27 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { color: textColor, font: { size: 10, family: 'system-ui', weight: '700' }, maxRotation: 35, minRotation: 35 }
+                        ticks: {
+                            color: textColor,
+                            font: { size: 11, family: 'system-ui', weight: '800' },
+                            maxRotation: 30,
+                            minRotation: 30,
+                            autoSkip: false
+                        }
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: gridColor, drawBorder: false, borderDash: [4, 4] },
-                        ticks: { color: textColor, font: { size: 11, family: 'JetBrains Mono', weight: '700' }, precision: 0, maxTicksLimit: 5 }
+                        ticks: {
+                            color: textColor,
+                            font: { size: 11, family: 'JetBrains Mono', weight: '700' },
+                            maxTicksLimit: 4,
+                            callback: function(val) {
+                                if (Number.isInteger(val)) {
+                                    return val.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1036,14 +1066,26 @@
         const items = getAllLocations().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <label class="dropdown-option">
+            <div class="dropdown-option">
                 <input type="checkbox" value="${escapeHtml(v)}" ${selectedLocations.has(v)?'checked':''}>
                 <span>${escapeHtml(v)}</span>
-            </label>`).join('');
-        container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
-            selectedLocations[cb.checked ? 'add' : 'delete'](cb.value);
-            updateLocationButtonText(); renderDashboard();
-        }));
+            </div>`).join('');
+        
+        container.querySelectorAll('.dropdown-option').forEach(row => {
+            const cb = row.querySelector('input[type=checkbox]');
+            row.addEventListener('click', e => {
+                if (e.target !== cb) {
+                    e.preventDefault();
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            });
+            cb.addEventListener('change', () => {
+                selectedLocations[cb.checked ? 'add' : 'delete'](cb.value);
+                updateLocationButtonText();
+                renderDashboard();
+            });
+        });
     }
 
     function renderSourceOptions() {
@@ -1052,14 +1094,26 @@
         const items = getAllSources().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <label class="dropdown-option">
+            <div class="dropdown-option">
                 <input type="checkbox" value="${escapeHtml(v)}" ${selectedSources.has(v)?'checked':''}>
                 <span>${escapeHtml(v)}</span>
-            </label>`).join('');
-        container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
-            selectedSources[cb.checked ? 'add' : 'delete'](cb.value);
-            updateSourceButtonText(); renderDashboard();
-        }));
+            </div>`).join('');
+        
+        container.querySelectorAll('.dropdown-option').forEach(row => {
+            const cb = row.querySelector('input[type=checkbox]');
+            row.addEventListener('click', e => {
+                if (e.target !== cb) {
+                    e.preventDefault();
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            });
+            cb.addEventListener('change', () => {
+                selectedSources[cb.checked ? 'add' : 'delete'](cb.value);
+                updateSourceButtonText();
+                renderDashboard();
+            });
+        });
     }
 
     function renderProjectOptions() {
@@ -1068,14 +1122,26 @@
         const items = getAllProjects().filter(v => v.toLowerCase().includes(search));
         if (!items.length) { container.innerHTML = '<div class="dropdown-option" style="color:var(--text3);justify-content:center;">No results</div>'; return; }
         container.innerHTML = items.map(v => `
-            <label class="dropdown-option">
+            <div class="dropdown-option">
                 <input type="checkbox" value="${escapeHtml(v)}" ${selectedProjects.has(v)?'checked':''}>
                 <span>${escapeHtml(v)}</span>
-            </label>`).join('');
-        container.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', e => {
-            selectedProjects[cb.checked ? 'add' : 'delete'](cb.value);
-            updateProjectButtonText(); renderDashboard();
-        }));
+            </div>`).join('');
+        
+        container.querySelectorAll('.dropdown-option').forEach(row => {
+            const cb = row.querySelector('input[type=checkbox]');
+            row.addEventListener('click', e => {
+                if (e.target !== cb) {
+                    e.preventDefault();
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            });
+            cb.addEventListener('change', () => {
+                selectedProjects[cb.checked ? 'add' : 'delete'](cb.value);
+                updateProjectButtonText();
+                renderDashboard();
+            });
+        });
     }
 
     function updateLocationButtonText() {
