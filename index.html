@@ -50,9 +50,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
         body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto; }
         .container { max-width: 100%; margin: 0 auto; width: 100%; }
-        .header { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 4px var(--shadow); position: relative; }
-        h1 { font-size: 20px; font-weight: 700; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .logo-img { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); height: 32px; filter: var(--logo-filter); object-fit: contain; }
+        .header { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 16px 24px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; box-shadow: 0 1px 4px var(--shadow); position: relative; }
+        h1 { font-size: 21px; font-weight: 700; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .logo-img { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); height: 38px; filter: var(--logo-filter); object-fit: contain; }
         .header-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; position: relative; z-index: 1; }
         .web-btn { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; border: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
         .web-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,92,246,0.25); }
@@ -171,15 +171,15 @@
         .zone-active-text.zone-mid span { color: var(--blue); }
         .zone-active-text.zone-north span { color: var(--green); }
         .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 4px; }
-        .stat-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; text-align: center; box-shadow: 0 1px 4px var(--shadow); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
+        .stat-card { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; text-align: center; box-shadow: 0 1px 4px var(--shadow); position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s; }
         .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--accent-color, var(--blue)); opacity: 0.7; }
         .stat-card:hover { transform: translateY(-2px); border-color: var(--accent-color, var(--blue)); }
         .stat-card:nth-child(1) { --accent-color: var(--blue); }
         .stat-card:nth-child(2) { --accent-color: var(--purple); }
         .stat-card:nth-child(3) { --accent-color: var(--green); }
         .stat-card:nth-child(4) { --accent-color: var(--amber); }
-        .stat-number { font-size: 26px; font-weight: 800; font-family: var(--mono); color: var(--accent-color, var(--blue)); line-height: 1.1; }
-        .stat-label { font-size: 10px; margin-top: 4px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
+        .stat-number { font-size: 29px; font-weight: 800; font-family: var(--mono); color: var(--accent-color, var(--blue)); line-height: 1.1; }
+        .stat-label { font-size: 11px; margin-top: 4px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; }
         
         /* Premium Chart Styles */
         .charts-container {
@@ -700,6 +700,7 @@
                 }]
             },
             options: {
+                devicePixelRatio: window.devicePixelRatio || 2,
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: {
@@ -784,6 +785,7 @@
                 }]
             },
             options: {
+                devicePixelRatio: window.devicePixelRatio || 2,
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
@@ -808,7 +810,7 @@
                             font: { size: 10, family: 'system-ui', weight: '700' },
                             maxRotation: 0,
                             minRotation: 0,
-                            autoSkip: false
+                            autoSkip: true
                         }
                     },
                     y: {
@@ -847,7 +849,7 @@
             sourcesChart.destroy();
         }
 
-        const sourceColors = [
+        const baseColors = [
             '#3b82f6', // premium blue
             '#8b5cf6', // Indigo / Purple
             '#10b981', // Emerald Green
@@ -856,7 +858,18 @@
             '#06b6d4', // Cyan
             '#ec4899', // Pink
             '#14b8a6', // Teal
+            '#f43f5e', // Rose
+            '#6366f1', // Indigo Indigo
+            '#84cc16', // Lime
+            '#a855f7', // Purple-500
+            '#f97316', // Orange-500
+            '#0284c7', // Sky Blue
+            '#059669', // Emerald Dark
+            '#b45309'  // Brown Amber
         ];
+
+        // Safely cycle through premium colors to handle future potential sources seamlessly
+        const sourceColors = srcLabels.map((_, idx) => baseColors[idx % baseColors.length]);
 
         // Custom responsive center label layout plugin
         const centerLeadTextPlugin = {
@@ -869,15 +882,15 @@
                 ctx.textBaseline = 'middle';
                 
                 // 1. Draw small uppercase title
-                ctx.font = '600 10px system-ui, -apple-system, sans-serif';
+                ctx.font = '700 11px system-ui, -apple-system, sans-serif';
                 ctx.fillStyle = isD ? '#cbd5e1' : '#64748b';
-                ctx.fillText('LEADS TOTAL', left + width / 2, top + height / 2 - 12);
+                ctx.fillText('LEADS TOTAL', left + width / 2, top + height / 2 - 14);
                 
                 // 2. Draw big leads metric integer
                 const totalLeads = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                ctx.font = 'bold 22px system-ui, -apple-system, sans-serif';
+                ctx.font = 'bold 26px system-ui, -apple-system, sans-serif';
                 ctx.fillStyle = isD ? '#ffffff' : '#0f172a';
-                ctx.fillText(totalLeads.toLocaleString(), left + width / 2, top + height / 2 + 10);
+                ctx.fillText(totalLeads.toLocaleString(), left + width / 2, top + height / 2 + 12);
                 ctx.restore();
             }
         };
@@ -896,6 +909,7 @@
                 }]
             },
             options: {
+                devicePixelRatio: window.devicePixelRatio || 2,
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
@@ -903,9 +917,9 @@
                         position: 'bottom', // bottom alignment is much cleaner inside narrower layout columns!
                         labels: {
                             color: textColor,
-                            boxWidth: 9,
-                            padding: 10,
-                            font: { size: 10, family: 'system-ui', weight: '600' }
+                            boxWidth: 12,
+                            padding: 14,
+                            font: { size: 12, family: 'system-ui', weight: '700' }
                         }
                     },
                     tooltip: {
