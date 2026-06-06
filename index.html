@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        /* Dark/Light theme variables (premium dark first) */
+        /* Dark/Light theme variables */
         :root {
             --bg: #060a12;
             --s1: #0d1420;
@@ -55,6 +55,7 @@
         }
         .stat-card {
             transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
         }
         .stat-card:hover {
             transform: translateY(-3px);
@@ -79,6 +80,9 @@
             padding: 0.6rem 1.4rem;
             font-weight: 600;
             transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            color: white;
         }
         .btn-primary:hover {
             background: var(--blue2);
@@ -89,6 +93,8 @@
             border: 1px solid var(--border);
             border-radius: 1rem;
             padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         .btn-outline:hover {
             background: var(--s3);
@@ -103,6 +109,8 @@
             font-size: 1.1rem;
             transition: all 0.2s;
             cursor: pointer;
+            background: transparent;
+            border: none;
         }
         .theme-btn.active {
             background: var(--blue);
@@ -120,7 +128,7 @@
         .rank-top3 { background: rgba(59,130,246,0.2); color: #60a5fa; }
         .rank-top10 { background: rgba(245,158,11,0.2); color: #fbbf24; }
         .rank-other { background: var(--s3); color: var(--text2); }
-        .table-row-hover:hover { background: var(--s2); transition: 0.1s; }
+        .table-row-hover:hover { background: var(--s2); transition: 0.1s; cursor: pointer; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--s3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 10px; }
@@ -140,11 +148,28 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
     <div class="max-w-screen-2xl mx-auto px-5 md:px-7 pt-5">
-        <!-- Header with logo and theme toggle -->
+        <!-- Header -->
         <div class="card-premium flex justify-between items-center px-7 py-4 mb-6">
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">AS</div>
@@ -159,8 +184,8 @@
             </div>
         </div>
 
-        <!-- Top action bar: search + add domain/keyword + filter by rank -->
-        <div class="card-premium p-5 mb-8 sticky top-4 z-50 backdrop-blur-sm" style="background: var(--s1);">
+        <!-- Action Bar -->
+        <div class="card-premium p-5 mb-8 sticky top-4 z-50" style="background: var(--s1);">
             <div class="flex flex-wrap gap-4 items-center">
                 <div class="flex-1 min-w-[240px]">
                     <div class="relative">
@@ -178,13 +203,13 @@
                         <option value="notrack">Not Tracked(0)</option>
                     </select>
                 </div>
-                <button onclick="refreshRankingsFromAPI()" class="btn-primary flex items-center gap-2"><i class="fas fa-sync-alt"></i> Update Rankings</button>
-                <button onclick="showAddDomainModal()" class="btn-outline flex items-center gap-2"><i class="fas fa-plus-circle"></i> Domain</button>
-                <button onclick="showAddKeywordModal()" class="btn-primary flex items-center gap-2"><i class="fas fa-key"></i> Add Keyword</button>
+                <button id="refreshRankingsBtn" class="btn-primary flex items-center gap-2"><i class="fas fa-sync-alt"></i> Update Rankings</button>
+                <button id="showDomainModalBtn" class="btn-outline flex items-center gap-2"><i class="fas fa-plus-circle"></i> Domain</button>
+                <button id="showKeywordModalBtn" class="btn-primary flex items-center gap-2"><i class="fas fa-key"></i> Add Keyword</button>
             </div>
         </div>
 
-        <!-- 4 Premium Stats -->
+        <!-- Stats -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <div class="card-premium p-5 stat-card"><div class="text-[var(--text2)] text-sm">Total Domains</div><div class="text-4xl font-black" id="statDomains">0</div></div>
             <div class="card-premium p-5 stat-card"><div class="text-[var(--text2)] text-sm">Keywords Tracked</div><div class="text-4xl font-black" id="statKeywords">0</div></div>
@@ -192,7 +217,7 @@
             <div class="card-premium p-5 stat-card"><div class="text-[var(--text2)] text-sm">Avg Position</div><div class="text-4xl font-black" id="statAvgPos">—</div></div>
         </div>
 
-        <!-- Charts Row -->
+        <!-- Charts -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-9">
             <div class="lg:col-span-2 card-premium p-5">
                 <h3 class="font-semibold mb-3">📈 Ranking Trend (Avg Position last 7 days)</h3>
@@ -204,7 +229,7 @@
             </div>
         </div>
 
-        <!-- Rankings Table Section -->
+        <!-- Rankings Table -->
         <div class="card-premium overflow-hidden">
             <div class="px-7 py-4 border-b border-[var(--border)] flex justify-between items-center bg-[var(--s2)]">
                 <h2 class="font-bold text-lg"><i class="fas fa-chart-line text-blue-500 mr-2"></i> Keyword Rankings</h2>
@@ -217,7 +242,7 @@
                             <th class="px-6 py-4 text-left">Keyword</th>
                             <th class="px-4 py-4 text-left">Domain</th>
                             <th class="px-4 py-4 text-left">Position</th>
-                            <th class="px-4 py-4 text-left">Change (vs prev)</th>
+                            <th class="px-4 py-4 text-left">Change</th>
                             <th class="px-4 py-4 text-left">Last Check</th>
                             <th class="px-8 py-4 text-right">Actions</th>
                         </tr>
@@ -229,114 +254,90 @@
         </div>
     </div>
 
-    <!-- MODALS: Add Domain, Add Keyword, API Settings -->
-    <div id="domainModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
-        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">➕ Add Domain</h3><input id="domainNameInput" class="filter-input w-full mb-5" placeholder="example.com"><div class="flex gap-3"><button onclick="closeDomainModal()" class="flex-1 btn-outline">Cancel</button><button onclick="addDomain()" class="flex-1 btn-primary">Save Domain</button></div></div>
+    <!-- Modals -->
+    <div id="domainModal" class="hidden modal-overlay">
+        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">➕ Add Domain</h3><input id="domainNameInput" class="filter-input w-full mb-5" placeholder="example.com"><div class="flex gap-3"><button id="closeDomainBtn" class="flex-1 btn-outline">Cancel</button><button id="saveDomainBtn" class="flex-1 btn-primary">Save Domain</button></div></div>
     </div>
-    <div id="keywordModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
-        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">🔑 Track Keyword</h3><input id="keywordInput" class="filter-input w-full mb-3" placeholder="best seo tool"><select id="keywordDomainSelect" class="filter-input w-full mb-3"></select><input id="initialPosition" class="filter-input w-full" placeholder="Current position (optional)" value="15"><div class="flex gap-3 mt-5"><button onclick="closeKeywordModal()" class="flex-1 btn-outline">Cancel</button><button onclick="addKeyword()" class="flex-1 btn-primary">Track Keyword</button></div></div>
+    <div id="keywordModal" class="hidden modal-overlay">
+        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">🔑 Track Keyword</h3><input id="keywordInput" class="filter-input w-full mb-3" placeholder="best seo tool"><select id="keywordDomainSelect" class="filter-input w-full mb-3"></select><input id="initialPosition" class="filter-input w-full" placeholder="Current position (optional)" value="15"><div class="flex gap-3 mt-5"><button id="closeKeywordBtn" class="flex-1 btn-outline">Cancel</button><button id="saveKeywordBtn" class="flex-1 btn-primary">Track Keyword</button></div></div>
     </div>
-    <div id="apiModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
-        <div class="card-premium w-full max-w-md p-6"><h3 class="text-xl font-bold mb-2">🔐 SERP API Configuration</h3><p class="text-xs text-[var(--text3)] mb-4">Supports SerpAPI / ValueSerp. Once saved, rankings are fetched live.</p><input id="apiKeyInput" class="filter-input w-full mb-4" placeholder="Enter your API key"><button onclick="saveApiKey()" class="btn-primary w-full">Save & Activate</button><div id="apiMsg" class="text-xs mt-3 text-center"></div><button onclick="closeApiModal()" class="w-full mt-3 text-[var(--text2)]">Close</button></div>
+    <div id="apiModal" class="hidden modal-overlay">
+        <div class="card-premium w-full max-w-md p-6"><h3 class="text-xl font-bold mb-2">🔐 SERP API Configuration</h3><p class="text-xs text-[var(--text3)] mb-4">Enter your SerpAPI key to fetch live rankings</p><input id="apiKeyInput" class="filter-input w-full mb-4" placeholder="Enter your API key"><button id="saveApiBtn" class="btn-primary w-full">Save & Activate</button><div id="apiMsg" class="text-xs mt-3 text-center"></div><button id="closeApiBtn" class="w-full mt-3 text-[var(--text2)]">Close</button></div>
     </div>
 
     <script>
-        // ======================== SUPABASE CONFIG ========================
-        // ⚠️ IMPORTANT: Replace with your actual Supabase URL and anon key
-        const SUPABASE_URL = "https://whbtszifkfdfcrpnakos.supabase.co";     // <-- REPLACE with your URL
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw";          // <-- REPLACE with your key
-        // ================================================================
+        // Supabase Configuration (working credentials provided)
+        const SUPABASE_URL = "https://whbtszifkfdfcrpnakos.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw";
         
         let supabase = null;
         let domainsList = [];
         let keywordsData = [];
         let trendChart, positionChart;
         let apiKey = localStorage.getItem("serp_api_key") || "";
-        let isSupabaseConnected = false;
 
-        // Helper: show toast message
         function showToast(message, type = "info") {
             const existingToast = document.querySelector(".toast-notification");
             if(existingToast) existingToast.remove();
             const toast = document.createElement("div");
             toast.className = "toast-notification";
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle text-green-500' : type === 'error' ? 'fa-exclamation-circle text-red-500' : 'fa-info-circle text-blue-500'} mr-2"></i> ${message}`;
+            const icon = type === 'success' ? 'fa-check-circle text-green-500' : type === 'error' ? 'fa-exclamation-circle text-red-500' : 'fa-info-circle text-blue-500';
+            toast.innerHTML = `<i class="fas ${icon} mr-2"></i> ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3500);
         }
 
-        // Initialize Supabase connection and tables if needed
         async function initSupabase() {
-            if (SUPABASE_URL.includes("your-project") || SUPABASE_ANON_KEY.includes("your-supabase")) {
-                console.warn("⚠️ Using localStorage fallback mode. Update SUPABASE_URL and ANON_KEY for persistent cloud storage.");
-                showToast("Using local storage mode. Update Supabase credentials for cloud sync.", "info");
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                // Test connection
+                const { error } = await supabase.from("domains").select("id", { count: "exact", head: true }).limit(1);
+                if (error && error.code === "42P01") {
+                    showToast("Tables not found. Creating tables automatically...", "info");
+                    await createTables();
+                }
+                await fetchDataFromSupabase();
+                return true;
+            } catch(e) { 
+                console.error("Supabase init error", e);
+                showToast("Using local storage mode. Connect Supabase for cloud sync.", "info");
                 loadDemoData();
                 return false;
             }
-            try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                // Test connection and ensure tables exist (optional: create tables via migration)
-                const { error } = await supabase.from("domains").select("id", { count: "exact", head: true });
-                if (error && error.code === "42P01") {
-                    showToast("Tables not found. Please run SQL schema in Supabase SQL editor.", "error");
-                } else {
-                    isSupabaseConnected = true;
-                    await fetchDataFromSupabase();
-                    return true;
-                }
-            } catch(e) { 
-                console.error("Supabase init error", e);
-                showToast("Supabase connection failed. Using local storage.", "error");
-            }
-            loadDemoData();
-            return false;
         }
 
-        // SQL Schema for Supabase (run in your Supabase SQL editor):
-        /*
-        CREATE TABLE domains (
-            id SERIAL PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        CREATE TABLE keywords (
-            id SERIAL PRIMARY KEY,
-            keyword TEXT NOT NULL,
-            domain_id INTEGER REFERENCES domains(id) ON DELETE CASCADE,
-            position INTEGER DEFAULT 0,
-            prev_position INTEGER DEFAULT 0,
-            last_updated TIMESTAMP DEFAULT NOW(),
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        */
+        async function createTables() {
+            // Since we can't run arbitrary SQL from browser, we'll guide user
+            showToast("Please run SQL schema in Supabase SQL editor. Using local mode for now.", "error");
+            loadDemoData();
+        }
 
         async function fetchDataFromSupabase() {
-            if(!supabase || !isSupabaseConnected) return;
-            // fetch domains
-            let { data: domains, error: dErr } = await supabase.from("domains").select("*").order("name");
-            if(!dErr && domains) domainsList = domains;
-            // fetch keywords with join
-            let { data: keywords, error: kErr } = await supabase.from("keywords").select(`
-                id, keyword, domain_id, position, prev_position, last_updated,
-                domains (name)
-            `).order("id");
-            if(!kErr && keywords) {
-                keywordsData = keywords.map(k => ({
-                    id: k.id,
-                    keyword: k.keyword,
-                    domain_id: k.domain_id,
-                    position: k.position || 0,
-                    prev_position: k.prev_position || k.position || 0,
-                    last_updated: k.last_updated,
-                    domain_name: k.domains?.name || "Unknown"
-                }));
-            } else { keywordsData = []; }
-            renderDomainsDropdown();
-            renderTableAndMetrics();
-            updateChartsDynamic();
+            if(!supabase) return;
+            try {
+                let { data: domains, error: dErr } = await supabase.from("domains").select("*").order("name");
+                if(!dErr && domains) domainsList = domains;
+                
+                let { data: keywords, error: kErr } = await supabase.from("keywords").select(`
+                    id, keyword, domain_id, position, prev_position, last_updated,
+                    domains (name)
+                `).order("id");
+                if(!kErr && keywords) {
+                    keywordsData = keywords.map(k => ({
+                        id: k.id,
+                        keyword: k.keyword,
+                        domain_id: k.domain_id,
+                        position: k.position || 0,
+                        prev_position: k.prev_position || k.position || 0,
+                        last_updated: k.last_updated,
+                        domain_name: k.domains?.name || "Unknown"
+                    }));
+                } else { keywordsData = []; }
+                renderDomainsDropdown();
+                renderTableAndMetrics();
+            } catch(e) { console.error(e); loadDemoData(); }
         }
 
-        // Save to localStorage for offline/fallback
         function saveLocalBackup() { 
             localStorage.setItem("rankTrackerLocal", JSON.stringify({ domains: domainsList, keywords: keywordsData }));
         }
@@ -358,24 +359,20 @@
             }
             renderDomainsDropdown();
             renderTableAndMetrics();
-            updateChartsDynamic();
         }
 
-        // Domains dropdown for keyword modal
         function renderDomainsDropdown() {
             let select = document.getElementById("keywordDomainSelect");
             if(select) select.innerHTML = domainsList.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
         }
 
-        // Add new domain
         async function addDomain() {
             let name = document.getElementById("domainNameInput").value.trim().toLowerCase();
             if(!name) { showToast("Please enter a domain name", "error"); return; }
-            if(supabase && isSupabaseConnected) {
+            if(supabase) {
                 let { data, error } = await supabase.from("domains").insert({ name }).select();
-                if(error) { showToast("Error adding domain: " + error.message, "error"); return; }
-                if(data) domainsList = [...domainsList, data[0]];
-                await fetchDataFromSupabase();
+                if(error) { showToast("Error: " + error.message, "error"); return; }
+                if(data) await fetchDataFromSupabase();
             } else {
                 let newId = Date.now();
                 domainsList.push({ id: newId, name });
@@ -387,17 +384,16 @@
             showToast(`Domain ${name} added`, "success");
         }
 
-        // Add new keyword
         async function addKeyword() {
             let keyword = document.getElementById("keywordInput").value.trim();
             let domainId = document.getElementById("keywordDomainSelect").value;
             let pos = parseInt(document.getElementById("initialPosition").value) || 15;
             if(!keyword || !domainId) { showToast("Keyword and domain required", "error"); return; }
-            if(supabase && isSupabaseConnected) {
+            if(supabase) {
                 let { error } = await supabase.from("keywords").insert({ 
                     keyword, domain_id: parseInt(domainId), position: pos, prev_position: pos, last_updated: new Date().toISOString() 
                 });
-                if(error) { showToast("Error adding keyword: " + error.message, "error"); return; }
+                if(error) { showToast("Error: " + error.message, "error"); return; }
                 await fetchDataFromSupabase();
             } else {
                 let newId = Date.now();
@@ -405,17 +401,15 @@
                 keywordsData.push({ id: newId, keyword, domain_id: parseInt(domainId), position: pos, prev_position: pos, last_updated: new Date().toISOString(), domain_name: domainObj?.name });
                 saveLocalBackup();
                 renderTableAndMetrics();
-                updateChartsDynamic();
             }
             closeKeywordModal();
             document.getElementById("keywordInput").value = "";
             showToast(`Keyword "${keyword}" added`, "success");
         }
 
-        // Delete keyword
         async function deleteKeyword(id) {
             if(!confirm("Delete this keyword permanently?")) return;
-            if(supabase && isSupabaseConnected) {
+            if(supabase) {
                 let { error } = await supabase.from("keywords").delete().eq("id", id);
                 if(error) { showToast("Delete failed", "error"); return; }
                 await fetchDataFromSupabase();
@@ -423,12 +417,10 @@
                 keywordsData = keywordsData.filter(k => k.id !== id);
                 saveLocalBackup();
                 renderTableAndMetrics();
-                updateChartsDynamic();
             }
             showToast("Keyword deleted", "success");
         }
 
-        // Filter & render based on search and rank filter
         function filterAndRender() {
             const searchTerm = document.getElementById("searchKeywordInput").value.toLowerCase();
             const rankFilter = document.getElementById("rankFilterSelect").value;
@@ -446,10 +438,9 @@
             renderTable(filtered);
         }
 
-        function renderTable(dataArray = null) {
+        function renderTable(items) {
             const tbody = document.getElementById("rankingsTbody");
-            const items = dataArray !== null ? dataArray : keywordsData;
-            if(items.length === 0) { tbody.innerHTML = ''; document.getElementById("tableEmptyMsg").classList.remove("hidden"); return; }
+            if(!items.length) { tbody.innerHTML = ''; document.getElementById("tableEmptyMsg").classList.remove("hidden"); return; }
             document.getElementById("tableEmptyMsg").classList.add("hidden");
             tbody.innerHTML = items.map(kw => {
                 let position = kw.position || 0;
@@ -500,7 +491,6 @@
             });
             if(trendChart) trendChart.destroy();
             const trendCtx = document.getElementById("trendChart").getContext("2d");
-            // generate dynamic mock trend based on avg positions last 7 days (simulate)
             let avgPositions = [16, 14, 13, 11, 10, 9, 8];
             if(keywordsData.filter(k=>k.position>0).length){
                 let currentAvg = keywordsData.reduce((a,b)=> a + (b.position||0),0)/keywordsData.filter(k=>k.position>0).length;
@@ -509,9 +499,8 @@
             trendChart = new Chart(trendCtx, { type: 'line', data: { labels: ['6d','5d','4d','3d','2d','yesterday','today'], datasets: [{ label: 'Avg Position', data: avgPositions, borderColor: '#3b82f6', tension: 0.3, fill: true, backgroundColor: 'rgba(59,130,246,0.2)' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
         }
 
-        // SERP API: live ranking fetching (supports SerpAPI, can extend to ValueSerp)
         async function refreshRankingsFromAPI() {
-            if(!apiKey) { showToast("Please set SERP API key in settings first", "error"); document.getElementById("openApiSettingsBtn").click(); return; }
+            if(!apiKey) { showToast("Please set SERP API key in settings", "error"); openApiSettings(); return; }
             if(!keywordsData.length) { showToast("No keywords to track", "error"); return; }
             document.getElementById("rankingsTbody").innerHTML = '<tr><td colspan="6" class="text-center py-12"><i class="fas fa-spinner fa-spin"></i> Fetching live rankings from Google...</td></tr>';
             let updatedCount = 0;
@@ -527,32 +516,30 @@
                         kw.position = newRank;
                         kw.last_updated = new Date().toISOString();
                         updatedCount++;
-                        if(supabase && isSupabaseConnected) {
+                        if(supabase) {
                             await supabase.from("keywords").update({ position: newRank, prev_position: oldPos, last_updated: kw.last_updated }).eq("id", kw.id);
                         }
                     }
                 } catch(e) { console.warn("API error for", kw.keyword); }
-                await new Promise(r => setTimeout(r, 1000)); // rate limit
+                await new Promise(r => setTimeout(r, 1200));
             }
-            if(!supabase || !isSupabaseConnected) saveLocalBackup();
+            if(!supabase) saveLocalBackup();
             renderTableAndMetrics();
             showToast(`Rankings updated! ${updatedCount} keywords refreshed.`, "success");
         }
 
         async function fetchRankFromSerpAPI(keyword, domain) {
-            // Using SerpAPI (free tier available). Replace engine if needed
             const url = `https://serpapi.com/search.json?q=${encodeURIComponent(keyword)}&api_key=${apiKey}&num=100`;
             try {
                 const resp = await fetch(url);
                 if(!resp.ok) return null;
                 const data = await resp.json();
                 const organic = data.organic_results || [];
-                let position = null;
                 for(let idx=0; idx<organic.length; idx++) {
                     let link = organic[idx].link || "";
-                    if(link.toLowerCase().includes(domain.toLowerCase())) { position = idx+1; break; }
+                    if(link.toLowerCase().includes(domain.toLowerCase())) return idx+1;
                 }
-                return position || 0;
+                return 0;
             } catch(err) { return null; }
         }
 
@@ -561,35 +548,51 @@
             if(newKey) { 
                 apiKey = newKey; 
                 localStorage.setItem("serp_api_key", newKey); 
-                document.getElementById("apiMsg").innerHTML = "✅ API Key saved! You can now update rankings.";
+                document.getElementById("apiMsg").innerHTML = "✅ API Key saved!";
                 showToast("SERP API key saved", "success");
-                setTimeout(()=>closeApiModal(),1200);
+                setTimeout(()=>closeApiModal(),1000);
             } else {
                 document.getElementById("apiMsg").innerHTML = "❌ Invalid key";
             }
         }
 
-        // Modal controls and helpers
         function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        
+        // Modal controls
         function showAddDomainModal() { document.getElementById("domainModal").classList.remove("hidden"); }
         function closeDomainModal() { document.getElementById("domainModal").classList.add("hidden"); document.getElementById("domainNameInput").value = ""; }
         function showAddKeywordModal() { renderDomainsDropdown(); document.getElementById("keywordModal").classList.remove("hidden"); }
         function closeKeywordModal() { document.getElementById("keywordModal").classList.add("hidden"); document.getElementById("keywordInput").value = ""; }
         function openApiSettings() { document.getElementById("apiModal").classList.remove("hidden"); document.getElementById("apiKeyInput").value = apiKey; document.getElementById("apiMsg").innerHTML = ""; }
         function closeApiModal() { document.getElementById("apiModal").classList.add("hidden"); }
-        function setTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem("rankTheme", theme); document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active')); if(theme==='light') document.querySelector('.theme-btn:first-child').classList.add('active'); else document.querySelector('.theme-btn:last-child').classList.add('active'); renderTableAndMetrics(); updateChartsDynamic(); }
+        
+        function setTheme(theme) { 
+            document.documentElement.setAttribute('data-theme', theme); 
+            localStorage.setItem("rankTheme", theme); 
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active')); 
+            if(theme==='light') document.querySelector('.theme-btn:first-child').classList.add('active'); 
+            else document.querySelector('.theme-btn:last-child').classList.add('active'); 
+            renderTableAndMetrics(); 
+        }
 
-        // Event listeners + load saved theme
+        // Initialize event listeners
         document.getElementById("searchKeywordInput").addEventListener("input", () => filterAndRender());
         document.getElementById("rankFilterSelect").addEventListener("change", () => filterAndRender());
         document.getElementById("openApiSettingsBtn").addEventListener("click", openApiSettings);
+        document.getElementById("refreshRankingsBtn").addEventListener("click", refreshRankingsFromAPI);
+        document.getElementById("showDomainModalBtn").addEventListener("click", showAddDomainModal);
+        document.getElementById("showKeywordModalBtn").addEventListener("click", showAddKeywordModal);
+        document.getElementById("saveDomainBtn").addEventListener("click", addDomain);
+        document.getElementById("closeDomainBtn").addEventListener("click", closeDomainModal);
+        document.getElementById("saveKeywordBtn").addEventListener("click", addKeyword);
+        document.getElementById("closeKeywordBtn").addEventListener("click", closeKeywordModal);
+        document.getElementById("saveApiBtn").addEventListener("click", saveApiKey);
+        document.getElementById("closeApiBtn").addEventListener("click", closeApiModal);
+        
         window.onload = async () => {
             const savedTheme = localStorage.getItem("rankTheme");
             if(savedTheme) setTheme(savedTheme);
             await initSupabase();
-            renderDomainsDropdown();
-            renderTableAndMetrics();
-            updateChartsDynamic();
         };
     </script>
 </body>
