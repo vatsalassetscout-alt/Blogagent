@@ -353,7 +353,7 @@ select.inp { cursor:pointer; }
 // ════════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://whbtszifkfdfcrpnakos.supabase.co';       // e.g. https://xxxx.supabase.co
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw';  // eyJhbGci…
-const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';  // from serpapi.com
+const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';       // from serpapi.com
 // ════════════════════════════════════════════════════════
 // NOTE ON SERPAPI: Browsers block direct calls to serpapi.com (CORS).
 // To use Update Rankings you need one of:
@@ -756,7 +756,9 @@ function renderTable() {
                     : k.position <= 3    ? 'r3'
                     : k.position <= 10   ? 'r10'
                     :                      'r20';
-    const rankLabel = k.position === 0 ? '—' : `#${k.position}`;
+    const rankLabel = k.position === 0
+      ? (k.last_updated ? 'Not found' : 'Not checked')
+      : `#${k.position}`;
 
     let changeTxt = '<span class="same">—</span>';
     if (k.prev_position > 0 && k.position > 0) {
