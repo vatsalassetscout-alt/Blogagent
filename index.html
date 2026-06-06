@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RankTrack Pro — Asset Scout</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 :root {
   --bg: #07090f;
@@ -50,14 +50,11 @@ body {
   padding-bottom: 80px;
   transition: background .25s, color .25s;
 }
-
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background: var(--s2); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius:4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--blue); }
 
-/* ── HEADER ── */
 .header {
   position: sticky; top:0; z-index:60;
   background: var(--s1);
@@ -71,8 +68,7 @@ body {
   width:40px; height:40px; border-radius:12px;
   background: linear-gradient(135deg, var(--blue), var(--purple));
   display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:14px; color:#fff;
-  flex-shrink:0;
+  font-weight:800; font-size:14px; color:#fff; flex-shrink:0;
 }
 .logo-name {
   font-size:19px; font-weight:800;
@@ -82,15 +78,14 @@ body {
 .logo-sub { font-size:10px; color:var(--text3); letter-spacing:.5px; margin-top:1px; }
 .header-right { display:flex; align-items:center; gap:10px; }
 
-/* ── THEME TOGGLE ── */
 .theme-toggle { display:flex; gap:3px; background:var(--s2); border:1px solid var(--border); border-radius:40px; padding:3px; }
 .theme-btn { width:30px; height:30px; border-radius:40px; border:none; background:transparent; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; transition:background .2s; }
 .theme-btn.active { background: var(--blue); }
 
-/* ── BUTTONS ── */
 .btn { border:none; border-radius:10px; padding:8px 16px; font-family:var(--display); font-size:13px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .2s; }
 .btn-blue { background:var(--blue); color:#fff; }
 .btn-blue:hover { background:var(--blue2); transform:translateY(-1px); box-shadow:0 4px 16px rgba(61,127,255,.35); }
+.btn-blue:disabled { opacity:.5; cursor:not-allowed; transform:none; }
 .btn-ghost { background:var(--s2); color:var(--text2); border:1px solid var(--border); }
 .btn-ghost:hover { background:var(--s3); color:var(--text); }
 .btn-sm { padding:6px 12px; font-size:12px; }
@@ -99,17 +94,14 @@ body {
 .btn-icon.del:hover { background:rgba(255,77,77,.1); color:var(--red); }
 .btn-icon.sync:hover { background:rgba(61,127,255,.1); color:var(--blue); }
 
-/* ── INPUTS ── */
 .inp { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 14px; color:var(--text); font-family:var(--display); font-size:13px; outline:none; transition:border-color .2s, box-shadow .2s; width:100%; }
 .inp:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(61,127,255,.15); }
 .inp::placeholder { color:var(--text3); }
 select.inp { cursor:pointer; }
-[data-theme="dark"] select.inp option { background:var(--s2); }
+[data-theme="dark"] select.inp option { background:var(--s2); color:var(--text); }
 
-/* ── MAIN WRAPPER ── */
 .main { max-width:1440px; margin:0 auto; padding:24px 20px; }
 
-/* ── BANNER ── */
 .banner {
   border-radius:14px; padding:16px 20px;
   margin-bottom:22px; display:none; align-items:center; gap:14px;
@@ -118,11 +110,13 @@ select.inp { cursor:pointer; }
 }
 .banner.show { display:flex; }
 .banner.err { background:rgba(255,77,77,.08); border-color:rgba(255,77,77,.25); }
+.banner.warn { background:rgba(255,178,36,.08); border-color:rgba(255,178,36,.25); }
 .banner-icon { font-size:20px; flex-shrink:0; }
 .banner-text { flex:1; font-size:13px; color:var(--text2); }
 .banner-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.banner-close { cursor:pointer; color:var(--text3); background:none; border:none; font-size:16px; padding:4px; }
+.banner-close:hover { color:var(--text); }
 
-/* ── FILTER BAR ── */
 .filter-bar {
   background:var(--s1); border:1px solid var(--border);
   border-radius:14px; padding:14px 18px;
@@ -133,7 +127,6 @@ select.inp { cursor:pointer; }
 .search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:12px; }
 .search-wrap .inp { padding-left:34px; }
 
-/* ── STATS GRID ── */
 .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
 .stat-card {
   background:var(--s1); border:1px solid var(--border);
@@ -145,7 +138,6 @@ select.inp { cursor:pointer; }
 .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); font-weight:700; }
 .stat-num { font-size:34px; font-weight:800; font-family:var(--mono); color:var(--accent,var(--blue)); line-height:1.1; margin-top:6px; }
 
-/* ── TABLE ── */
 .table-card { background:var(--s1); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 2px 10px var(--shadow); }
 .table-titlebar { padding:14px 20px; background:var(--s2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .table-titlebar h2 { font-size:15px; font-weight:700; }
@@ -161,7 +153,6 @@ select.inp { cursor:pointer; }
 .tbl-empty { text-align:center; padding:60px 20px; color:var(--text3); font-size:13px; }
 .tbl-empty i { font-size:30px; display:block; margin-bottom:12px; opacity:.3; }
 
-/* ── RANK BADGES ── */
 .rank-badge { font-family:var(--mono); font-weight:700; border-radius:40px; padding:3px 11px; display:inline-block; font-size:12px; }
 .r1  { background:rgba(15,207,134,.15); color:var(--green); border:1px solid rgba(15,207,134,.3); }
 .r3  { background:rgba(61,127,255,.15); color:var(--blue2); border:1px solid rgba(61,127,255,.3); }
@@ -169,20 +160,15 @@ select.inp { cursor:pointer; }
 .r20 { background:rgba(255,77,77,.1); color:var(--red); border:1px solid rgba(255,77,77,.2); }
 .r0  { background:var(--s3); color:var(--text3); border:1px solid var(--border); }
 
-/* ── CHANGE ── */
 .up   { color:var(--green); font-family:var(--mono); font-size:12px; }
 .down { color:var(--red); font-family:var(--mono); font-size:12px; }
 .same { color:var(--text3); font-family:var(--mono); font-size:12px; }
 
-/* ── URL cell ── */
 .url-cell { font-size:11px; color:var(--text3); font-family:var(--mono); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .url-cell a { color:var(--blue); text-decoration:none; }
 .url-cell a:hover { text-decoration:underline; }
-
-/* ── DATE cell ── */
 .date-cell { font-size:11px; color:var(--text3); font-family:var(--mono); white-space:nowrap; }
 
-/* ── MODAL ── */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; }
 .modal-overlay.open { display:flex; }
 .modal-box { background:var(--s1); border:1px solid var(--border2); border-radius:20px; padding:28px; width:92%; max-width:440px; box-shadow:0 24px 64px rgba(0,0,0,.6); animation:mIn .2s ease; }
@@ -193,7 +179,6 @@ select.inp { cursor:pointer; }
 .modal-actions { display:flex; gap:10px; margin-top:22px; }
 .modal-actions .btn { flex:1; justify-content:center; }
 
-/* ── PROGRESS MODAL ── */
 .prog-box { max-width:360px; text-align:center; }
 .prog-icon { font-size:36px; margin-bottom:14px; }
 .prog-title { font-size:16px; font-weight:800; margin-bottom:6px; }
@@ -202,20 +187,16 @@ select.inp { cursor:pointer; }
 .prog-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--purple)); border-radius:5px; transition:width .4s ease; }
 .prog-count { font-size:11px; color:var(--text3); margin-top:8px; font-family:var(--mono); }
 
-/* ── TOAST ── */
-.toast { position:fixed; bottom:24px; right:24px; z-index:400; background:var(--s1); border:1px solid var(--border2); border-left:4px solid var(--blue); border-radius:12px; padding:13px 18px; box-shadow:0 12px 36px rgba(0,0,0,.4); display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; animation:tIn .3s ease; min-width:240px; }
+.toast { position:fixed; bottom:24px; right:24px; z-index:400; background:var(--s1); border:1px solid var(--border2); border-left:4px solid var(--blue); border-radius:12px; padding:13px 18px; box-shadow:0 12px 36px rgba(0,0,0,.4); display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; animation:tIn .3s ease; min-width:240px; max-width:380px; }
 @keyframes tIn { from { transform:translateX(110%); } to { transform:translateX(0); } }
 @keyframes tOut { to { transform:translateX(110%); opacity:0; } }
 
-/* ── DOMAIN PILLS ── */
-.domain-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
-.pill { padding:5px 15px; border-radius:40px; border:1px solid var(--border); background:var(--s2); color:var(--text2); font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
-.pill.active { background:var(--blue); color:#fff; border-color:var(--blue); }
-.pill:hover:not(.active) { border-color:var(--blue2); color:var(--text); }
-
-/* ── SPINNER ── */
 .spin { animation:spinning 1s linear infinite; }
 @keyframes spinning { to { transform:rotate(360deg); } }
+
+/* CORS notice */
+.cors-note { background:rgba(255,178,36,.06); border:1px solid rgba(255,178,36,.2); border-radius:10px; padding:12px 16px; font-size:12px; color:var(--text2); margin-top:10px; line-height:1.6; }
+.cors-note code { background:var(--s3); padding:1px 5px; border-radius:4px; font-family:var(--mono); font-size:11px; color:var(--amber); }
 
 @media (max-width:900px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
 @media (max-width:600px) { .stats-grid { grid-template-columns:1fr 1fr; } .filter-bar { flex-direction:column; } }
@@ -223,7 +204,6 @@ select.inp { cursor:pointer; }
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="logo">
     <div class="logo-mark">RT</div>
@@ -244,16 +224,15 @@ select.inp { cursor:pointer; }
 
 <div class="main">
 
-  <!-- BANNER -->
   <div class="banner" id="banner">
     <i class="fas fa-circle-info banner-icon" id="bannerIcon"></i>
     <div class="banner-text">
       <div class="banner-title" id="bannerTitle"></div>
       <div id="bannerMsg"></div>
     </div>
+    <button class="banner-close" onclick="closeBanner()"><i class="fas fa-xmark"></i></button>
   </div>
 
-  <!-- FILTER BAR -->
   <div class="filter-bar">
     <div class="search-wrap">
       <i class="fas fa-search"></i>
@@ -276,7 +255,6 @@ select.inp { cursor:pointer; }
     </button>
   </div>
 
-  <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card" style="--accent:var(--blue);">
       <div class="stat-label">Domains</div>
@@ -296,7 +274,6 @@ select.inp { cursor:pointer; }
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="table-card">
     <div class="table-titlebar">
       <h2><i class="fas fa-chart-line" style="color:var(--blue);margin-right:8px;"></i>Keyword Rankings</h2>
@@ -335,7 +312,7 @@ select.inp { cursor:pointer; }
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('domainModal')">Cancel</button>
-      <button class="btn btn-blue" onclick="addDomain()"><i class="fas fa-plus"></i> Add Domain</button>
+      <button class="btn btn-blue" id="addDomainBtn" onclick="addDomain()"><i class="fas fa-plus"></i> Add Domain</button>
     </div>
   </div>
 </div>
@@ -346,7 +323,7 @@ select.inp { cursor:pointer; }
     <div class="modal-title"><i class="fas fa-tags" style="color:var(--purple);"></i> Track Keyword</div>
     <div class="form-group">
       <label class="form-label">Keyword</label>
-      <input class="inp" id="kwInput" placeholder="e.g. buy apartments in pune">
+      <input class="inp" id="kwInput" placeholder="e.g. buy apartments in pune" onkeydown="if(event.key==='Enter')addKeyword()">
     </div>
     <div class="form-group">
       <label class="form-label">Domain</label>
@@ -354,7 +331,7 @@ select.inp { cursor:pointer; }
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('kwModal')">Cancel</button>
-      <button class="btn btn-blue" onclick="addKeyword()"><i class="fas fa-plus"></i> Track Keyword</button>
+      <button class="btn btn-blue" id="addKwBtn" onclick="addKeyword()"><i class="fas fa-plus"></i> Track Keyword</button>
     </div>
   </div>
 </div>
@@ -372,35 +349,67 @@ select.inp { cursor:pointer; }
 
 <script>
 // ════════════════════════════════════════════════════════
-//  ⚙️  CONFIGURATION — edit these values
+//  ⚙️  CONFIGURATION — replace these with your actual values
 // ════════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://whbtszifkfdfcrpnakos.supabase.co';       // e.g. https://xxxx.supabase.co
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw';  // eyJhbGci…
 const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';         // from serpapi.com
 // ════════════════════════════════════════════════════════
+// NOTE ON SERPAPI: Browsers block direct calls to serpapi.com (CORS).
+// To use Update Rankings you need one of:
+//   1. A Supabase Edge Function that proxies the call (recommended)
+//   2. A backend server that forwards the request
+//   3. A CORS proxy (not for production)
+// Adding/deleting keywords and domains works without any proxy.
+// ════════════════════════════════════════════════════════
 
-// ── STATE ──────────────────────────────────────────────
 let sb = null;
-let domains = [];    // [{ id, name }]
-let keywords = [];   // [{ id, keyword, domain_id, domain_name, position, prev_position, url_found, last_updated }]
+let domains  = [];
+let keywords = [];
 
 // ── INIT ──────────────────────────────────────────────
 async function init() {
   applyTheme(localStorage.getItem('rtp_theme') || 'dark');
 
-  if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON === 'YOUR_SUPABASE_ANON_KEY') {
-    showBanner('Add your Supabase and SerpAPI credentials at the top of the <script> block to get started.', 'Setup Required', true);
-    document.getElementById('tableSubtitle').textContent = 'Configure credentials to load data';
+  const missing = [];
+  if (SUPABASE_URL  === 'YOUR_SUPABASE_URL')      missing.push('SUPABASE_URL');
+  if (SUPABASE_ANON === 'YOUR_SUPABASE_ANON_KEY') missing.push('SUPABASE_ANON_KEY');
+
+  if (missing.length) {
+    showBanner(
+      `Open this file and set ${missing.join(' and ')} at the top of the &lt;script&gt; block.`,
+      'Configuration Required', 'err'
+    );
     updateStats();
     renderTable();
     return;
   }
 
   try {
+    // supabase is loaded from CDN as a UMD bundle — access via window.supabase.createClient
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // Quick connectivity check
+    const { error: pingErr } = await sb.from('domains').select('id').limit(1);
+    if (pingErr) throw pingErr;
+
     await loadAll();
+
+    if (SERP_API_KEY === 'YOUR_SERPAPI_KEY') {
+      showBanner(
+        'Supabase connected ✓ — Add your SerpAPI key to enable "Update Rankings". Adding keywords & domains works now.',
+        'SerpAPI not configured', 'warn'
+      );
+    }
   } catch(e) {
-    showBanner('Could not connect to Supabase: ' + e.message, 'Connection Error', true);
+    console.error('Init error:', e);
+    showBanner(
+      'Could not connect to Supabase: ' + (e.message || e) +
+      '. Check your URL/anon key and make sure the tables exist.',
+      'Connection Error', 'err'
+    );
+    updateStats();
+    renderTable();
   }
 }
 
@@ -415,7 +424,7 @@ async function loadAll() {
 
 async function loadDomains() {
   const { data, error } = await sb.from('domains').select('*').order('name');
-  if (error) throw error;
+  if (error) { console.error('loadDomains:', error); throw error; }
   domains = data || [];
   buildDomainDropdowns();
 }
@@ -423,38 +432,74 @@ async function loadDomains() {
 async function loadKeywords() {
   const { data, error } = await sb
     .from('keywords')
-    .select('*, domains(name)')
+    .select('id, keyword, domain_id, position, prev_position, url_found, last_updated, domains(name)')
     .order('keyword');
-  if (error) throw error;
+  if (error) { console.error('loadKeywords:', error); throw error; }
   keywords = (data || []).map(k => ({
-    ...k,
-    domain_name: k.domains?.name || '—'
+    id: k.id,
+    keyword: k.keyword,
+    domain_id: k.domain_id,
+    domain_name: k.domains?.name || '—',
+    position: k.position || 0,
+    prev_position: k.prev_position || 0,
+    url_found: k.url_found || '',
+    last_updated: k.last_updated || null
   }));
 }
 
 // ── DOMAINS ───────────────────────────────────────────
 async function addDomain() {
-  const name = document.getElementById('domainInput').value.trim().toLowerCase().replace(/^https?:\/\//, '');
-  if (!name) return toast('Enter a domain name', 'error');
   if (!sb) return toast('Supabase not configured', 'error');
 
-  const { data, error } = await sb.from('domains').insert({ name }).select().single();
-  if (error) return toast('Error: ' + (error.message.includes('unique') ? 'Domain already exists' : error.message), 'error');
+  const raw  = document.getElementById('domainInput').value.trim();
+  const name = raw.toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+  if (!name) return toast('Enter a domain name', 'error');
 
-  domains.push(data);
-  domains.sort((a,b) => a.name.localeCompare(b.name));
-  buildDomainDropdowns();
-  buildDomainFilter();
-  document.getElementById('domainInput').value = '';
-  closeModal('domainModal');
-  toast('Domain added: ' + name, 'success');
+  const btn = document.getElementById('addDomainBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin"></i> Adding…';
+
+  try {
+    const { data, error } = await sb
+      .from('domains')
+      .insert([{ name }])
+      .select()
+      .single();
+
+    if (error) {
+      const msg = error.message || JSON.stringify(error);
+      if (msg.toLowerCase().includes('unique') || msg.includes('23505')) {
+        toast('Domain already exists: ' + name, 'error');
+      } else {
+        toast('Error adding domain: ' + msg, 'error');
+        console.error('addDomain error:', error);
+      }
+      return;
+    }
+
+    domains.push(data);
+    domains.sort((a,b) => a.name.localeCompare(b.name));
+    buildDomainDropdowns();
+    buildDomainFilter();
+    updateStats();
+    document.getElementById('domainInput').value = '';
+    closeModal('domainModal');
+    toast('Domain added: ' + name, 'success');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Add Domain';
+  }
 }
 
 function buildDomainDropdowns() {
   const sel = document.getElementById('kwDomain');
-  sel.innerHTML = domains.length
-    ? domains.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')
-    : '<option value="">— add a domain first —</option>';
+  if (domains.length === 0) {
+    sel.innerHTML = '<option value="">— add a domain first —</option>';
+  } else {
+    sel.innerHTML = domains.map(d =>
+      `<option value="${d.id}">${esc(d.name)}</option>`
+    ).join('');
+  }
 }
 
 function buildDomainFilter() {
@@ -462,36 +507,73 @@ function buildDomainFilter() {
   const cur = sel.value;
   sel.innerHTML = '<option value="all">All Domains</option>' +
     domains.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
-  if (cur) sel.value = cur;
+  if (cur && cur !== 'all') sel.value = cur;
 }
 
 // ── KEYWORDS ──────────────────────────────────────────
 async function addKeyword() {
-  const kw = document.getElementById('kwInput').value.trim();
-  const domainId = parseInt(document.getElementById('kwDomain').value);
-  if (!kw) return toast('Enter a keyword', 'error');
-  if (!domainId) return toast('Select a domain first', 'error');
   if (!sb) return toast('Supabase not configured', 'error');
 
-  const { data, error } = await sb.from('keywords')
-    .insert({ keyword: kw, domain_id: domainId, position: 0, prev_position: 0 })
-    .select('*, domains(name)')
-    .single();
-  if (error) return toast('Error: ' + error.message, 'error');
+  const kw       = document.getElementById('kwInput').value.trim();
+  const domainId = parseInt(document.getElementById('kwDomain').value, 10);
 
-  keywords.push({ ...data, domain_name: data.domains?.name || '—' });
-  keywords.sort((a,b) => a.keyword.localeCompare(b.keyword));
-  document.getElementById('kwInput').value = '';
-  closeModal('kwModal');
-  updateStats();
-  renderTable();
-  toast('Keyword tracked: ' + kw, 'success');
+  if (!kw)       return toast('Enter a keyword', 'error');
+  if (!domainId) return toast('Select a domain first', 'error');
+
+  const btn = document.getElementById('addKwBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin"></i> Adding…';
+
+  try {
+    const { data, error } = await sb
+      .from('keywords')
+      .insert([{
+        keyword:       kw,
+        domain_id:     domainId,
+        position:      0,
+        prev_position: 0,
+        url_found:     '',
+        last_updated:  new Date().toISOString()
+      }])
+      .select('id, keyword, domain_id, position, prev_position, url_found, last_updated, domains(name)')
+      .single();
+
+    if (error) {
+      console.error('addKeyword error:', error);
+      toast('Error adding keyword: ' + (error.message || JSON.stringify(error)), 'error');
+      return;
+    }
+
+    keywords.push({
+      id:            data.id,
+      keyword:       data.keyword,
+      domain_id:     data.domain_id,
+      domain_name:   data.domains?.name || '—',
+      position:      data.position || 0,
+      prev_position: data.prev_position || 0,
+      url_found:     data.url_found || '',
+      last_updated:  data.last_updated || null
+    });
+
+    keywords.sort((a,b) => a.keyword.localeCompare(b.keyword));
+    document.getElementById('kwInput').value = '';
+    closeModal('kwModal');
+    updateStats();
+    renderTable();
+    toast('Keyword tracked: ' + kw, 'success');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Track Keyword';
+  }
 }
 
 async function deleteKeyword(id) {
   if (!confirm('Remove this keyword from tracking?')) return;
+  if (!sb) return toast('Supabase not configured', 'error');
+
   const { error } = await sb.from('keywords').delete().eq('id', id);
   if (error) return toast('Delete failed: ' + error.message, 'error');
+
   keywords = keywords.filter(k => k.id !== id);
   updateStats();
   renderTable();
@@ -500,57 +582,57 @@ async function deleteKeyword(id) {
 
 // ── REFRESH RANKINGS ──────────────────────────────────
 async function refreshAllRankings() {
-  if (!sb) return toast('Supabase not configured', 'error');
-  if (SERP_API_KEY === 'YOUR_SERPAPI_KEY') return toast('Add your SerpAPI key in the config', 'error');
-  if (keywords.length === 0) return toast('No keywords to refresh', 'error');
+  if (!sb)                                    return toast('Supabase not configured', 'error');
+  if (SERP_API_KEY === 'YOUR_SERPAPI_KEY')     return toast('Add your SerpAPI key in the config', 'error');
+  if (keywords.length === 0)                  return toast('No keywords to refresh', 'error');
 
   const btn = document.getElementById('refreshBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-circle-notch spin"></i> Updating…';
 
   openModal('progressModal');
+
   const total = keywords.length;
   let done = 0;
 
   for (const kw of keywords) {
-    document.getElementById('progLabel').textContent = `Checking: "${kw.keyword}"`;
-    document.getElementById('progCount').textContent = `${done} / ${total}`;
-    document.getElementById('progFill').style.width = Math.round((done / total) * 100) + '%';
+    document.getElementById('progLabel').textContent  = `Checking: "${kw.keyword}"`;
+    document.getElementById('progCount').textContent  = `${done} / ${total}`;
+    document.getElementById('progFill').style.width   = Math.round((done / total) * 100) + '%';
 
     try {
-      const result = await fetchRank(kw.keyword, kw.domain_name);
+      const result  = await fetchRank(kw.keyword, kw.domain_name);
       const prevPos = kw.position;
-      const newPos  = result.position;
-      const newUrl  = result.url || '';
 
       const { error } = await sb.from('keywords').update({
         prev_position: prevPos,
-        position: newPos,
-        url_found: newUrl,
-        last_updated: new Date().toISOString()
+        position:      result.position,
+        url_found:     result.url || '',
+        last_updated:  new Date().toISOString()
       }).eq('id', kw.id);
 
       if (!error) {
-        // save to history
-        await sb.from('rank_history').insert({ keyword_id: kw.id, position: newPos });
+        await sb.from('rank_history').insert([{ keyword_id: kw.id, position: result.position }]);
         kw.prev_position = prevPos;
-        kw.position = newPos;
-        kw.url_found = newUrl;
-        kw.last_updated = new Date().toISOString();
+        kw.position      = result.position;
+        kw.url_found     = result.url || '';
+        kw.last_updated  = new Date().toISOString();
+      } else {
+        console.error('update error for', kw.keyword, error);
       }
     } catch(e) {
-      console.warn('Rank fetch error for', kw.keyword, e);
+      console.warn('Rank fetch error for', kw.keyword, ':', e.message);
     }
 
     done++;
-    await sleep(500); // be polite to the API
+    await sleep(600);
   }
 
-  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('progFill').style.width  = '100%';
   document.getElementById('progCount').textContent = `${total} / ${total}`;
   document.getElementById('progLabel').textContent = 'Done!';
 
-  await sleep(600);
+  await sleep(700);
   closeModal('progressModal');
 
   updateStats();
@@ -561,7 +643,7 @@ async function refreshAllRankings() {
 }
 
 async function refreshOne(id) {
-  if (!sb) return toast('Supabase not configured', 'error');
+  if (!sb)                                return toast('Supabase not configured', 'error');
   if (SERP_API_KEY === 'YOUR_SERPAPI_KEY') return toast('Add your SerpAPI key in the config', 'error');
 
   const kw = keywords.find(k => k.id === id);
@@ -571,50 +653,61 @@ async function refreshOne(id) {
   if (btn) { btn.innerHTML = '<i class="fas fa-circle-notch spin"></i>'; btn.disabled = true; }
 
   try {
-    const result = await fetchRank(kw.keyword, kw.domain_name);
+    const result  = await fetchRank(kw.keyword, kw.domain_name);
     const prevPos = kw.position;
-    await sb.from('keywords').update({
-      prev_position: prevPos,
-      position: result.position,
-      url_found: result.url || '',
-      last_updated: new Date().toISOString()
-    }).eq('id', id);
-    await sb.from('rank_history').insert({ keyword_id: id, position: result.position });
 
+    const { error } = await sb.from('keywords').update({
+      prev_position: prevPos,
+      position:      result.position,
+      url_found:     result.url || '',
+      last_updated:  new Date().toISOString()
+    }).eq('id', id);
+
+    if (error) throw new Error(error.message);
+
+    await sb.from('rank_history').insert([{ keyword_id: id, position: result.position }]);
     kw.prev_position = prevPos;
-    kw.position = result.position;
-    kw.url_found = result.url || '';
-    kw.last_updated = new Date().toISOString();
+    kw.position      = result.position;
+    kw.url_found     = result.url || '';
+    kw.last_updated  = new Date().toISOString();
 
     updateStats();
     renderTable();
     toast(`Updated: "${kw.keyword}" → #${result.position || 'Not found'}`, 'success');
   } catch(e) {
     toast('Fetch error: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.innerHTML = '<i class="fas fa-rotate"></i>'; btn.disabled = false; }
   }
-
-  if (btn) { btn.innerHTML = '<i class="fas fa-rotate"></i>'; btn.disabled = false; }
 }
 
 // ── SERPAPI CALL ──────────────────────────────────────
+// IMPORTANT: Direct browser → SerpAPI calls are blocked by CORS.
+// This function works fine when served from a backend/edge function.
+// If you get a CORS error, route through a proxy (see README / top comment).
 async function fetchRank(keyword, domain) {
   const params = new URLSearchParams({
-    engine: 'google',
-    q: keyword,
-    api_key: SERP_API_KEY,
-    num: 100,
-    gl: 'in',   // country — change as needed
-    hl: 'en'
+    engine:  'google',
+    q:        keyword,
+    api_key:  SERP_API_KEY,
+    num:      '100',
+    gl:       'in',
+    hl:       'en'
   });
 
   const res = await fetch(`https://serpapi.com/search.json?${params}`);
-  if (!res.ok) throw new Error(`SerpAPI responded ${res.status}`);
-  const data = await res.json();
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`SerpAPI ${res.status}: ${body.slice(0,120)}`);
+  }
 
+  const data    = await res.json();
   const results = data.organic_results || [];
+  const clean   = domain.toLowerCase().replace(/^https?:\/\//, '');
+
   for (let i = 0; i < results.length; i++) {
     const link = (results[i].link || '').toLowerCase();
-    if (link.includes(domain.toLowerCase())) {
+    if (link.includes(clean)) {
       return { position: i + 1, url: results[i].link };
     }
   }
@@ -623,20 +716,20 @@ async function fetchRank(keyword, domain) {
 
 // ── RENDER TABLE ──────────────────────────────────────
 function renderTable() {
-  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const search  = (document.getElementById('searchInput').value || '').toLowerCase();
   const domainF = document.getElementById('domainFilter').value;
   const rankF   = document.getElementById('rankFilter').value;
 
-  let rows = keywords.filter(k => {
+  const rows = keywords.filter(k => {
     if (search && !k.keyword.toLowerCase().includes(search) && !k.domain_name.toLowerCase().includes(search)) return false;
     if (domainF !== 'all' && String(k.domain_id) !== domainF) return false;
     const p = k.position;
-    if (rankF === 'top1'    && p !== 1)            return false;
-    if (rankF === 'top3'    && (p < 1 || p > 3))   return false;
-    if (rankF === 'top10'   && (p < 1 || p > 10))  return false;
-    if (rankF === 'top20'   && (p < 11 || p > 20)) return false;
-    if (rankF === '20plus'  && p <= 20)             return false;
-    if (rankF === 'unranked'&& p !== 0)             return false;
+    if (rankF === 'top1'     && p !== 1)             return false;
+    if (rankF === 'top3'     && (p < 1 || p > 3))    return false;
+    if (rankF === 'top10'    && (p < 1 || p > 10))   return false;
+    if (rankF === 'top20'    && (p < 11 || p > 20))  return false;
+    if (rankF === '20plus'   && p <= 20)              return false;
+    if (rankF === 'unranked' && p !== 0)              return false;
     return true;
   });
 
@@ -647,7 +740,9 @@ function renderTable() {
     tbody.innerHTML = '';
     empty.style.display = 'block';
     document.getElementById('tableSubtitle').textContent =
-      keywords.length === 0 ? 'Add domains and keywords to start tracking' : 'No results match current filters';
+      keywords.length === 0
+        ? 'Add domains and keywords to start tracking'
+        : 'No results match current filters';
     return;
   }
 
@@ -656,12 +751,16 @@ function renderTable() {
     `${rows.length} keyword${rows.length !== 1 ? 's' : ''} · click Update Rankings for fresh data`;
 
   tbody.innerHTML = rows.map(k => {
-    const rankClass = k.position === 0 ? 'r0' : k.position === 1 ? 'r1' : k.position <= 3 ? 'r3' : k.position <= 10 ? 'r10' : 'r20';
+    const rankClass = k.position === 0   ? 'r0'
+                    : k.position === 1   ? 'r1'
+                    : k.position <= 3    ? 'r3'
+                    : k.position <= 10   ? 'r10'
+                    :                      'r20';
     const rankLabel = k.position === 0 ? '—' : `#${k.position}`;
 
     let changeTxt = '<span class="same">—</span>';
     if (k.prev_position > 0 && k.position > 0) {
-      const diff = k.prev_position - k.position; // positive = improved
+      const diff = k.prev_position - k.position;
       if (diff > 0)      changeTxt = `<span class="up">↑ ${diff}</span>`;
       else if (diff < 0) changeTxt = `<span class="down">↓ ${Math.abs(diff)}</span>`;
       else               changeTxt = `<span class="same">— 0</span>`;
@@ -673,21 +772,17 @@ function renderTable() {
       ? `<a href="${esc(k.url_found)}" target="_blank" rel="noopener">${esc(truncate(k.url_found, 50))}</a>`
       : '<span style="color:var(--text3);">—</span>';
 
-    const dateHtml = k.last_updated
-      ? fmtDate(k.last_updated)
-      : '<span style="color:var(--text3);">Never</span>';
-
     return `<tr>
       <td style="font-weight:600;">${esc(k.keyword)}</td>
       <td><span style="font-family:var(--mono);font-size:12px;color:var(--text2);">${esc(k.domain_name)}</span></td>
       <td><span class="rank-badge ${rankClass}">${rankLabel}</span></td>
       <td>${changeTxt}</td>
       <td class="url-cell">${urlHtml}</td>
-      <td class="date-cell">${dateHtml}</td>
+      <td class="date-cell">${fmtDate(k.last_updated)}</td>
       <td>
         <div style="display:flex;gap:4px;justify-content:flex-end;">
-          <button class="btn-icon sync" data-sync="${k.id}" onclick="refreshOne(${k.id})" title="Refresh"><i class="fas fa-rotate"></i></button>
-          <button class="btn-icon del" onclick="deleteKeyword(${k.id})" title="Remove"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon sync" data-sync="${k.id}" onclick="refreshOne(${k.id})" title="Refresh rank"><i class="fas fa-rotate"></i></button>
+          <button class="btn-icon del" onclick="deleteKeyword(${k.id})" title="Remove keyword"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     </tr>`;
@@ -696,11 +791,13 @@ function renderTable() {
 
 // ── STATS ─────────────────────────────────────────────
 function updateStats() {
-  document.getElementById('sDomains').textContent  = domains.length;
-  document.getElementById('sKeywords').textContent = keywords.length;
+  document.getElementById('sDomains').textContent  = domains.length  || '0';
+  document.getElementById('sKeywords').textContent = keywords.length || '0';
   const ranked = keywords.filter(k => k.position > 0);
   const top3   = ranked.filter(k => k.position <= 3).length;
-  const avg    = ranked.length ? Math.round(ranked.reduce((s,k) => s + k.position, 0) / ranked.length) : 0;
+  const avg    = ranked.length
+    ? Math.round(ranked.reduce((s,k) => s + k.position, 0) / ranked.length)
+    : 0;
   document.getElementById('sTop3').textContent = top3;
   document.getElementById('sAvg').textContent  = avg || '—';
 }
@@ -710,36 +807,47 @@ function openModal(id) {
   document.getElementById(id).classList.add('open');
   if (id === 'kwModal') buildDomainDropdowns();
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
 document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m && m.id !== 'progressModal') closeModal(m.id); });
+  m.addEventListener('click', e => {
+    if (e.target === m && m.id !== 'progressModal') closeModal(m.id);
+  });
 });
+
+// ── BANNER ────────────────────────────────────────────
+function showBanner(msg, title, type = 'info') {
+  const b = document.getElementById('banner');
+  document.getElementById('bannerTitle').textContent = title;
+  document.getElementById('bannerMsg').innerHTML = msg;
+  b.className = 'banner show' + (type === 'err' ? ' err' : type === 'warn' ? ' warn' : '');
+  const icon = document.getElementById('bannerIcon');
+  icon.className = 'fas banner-icon ' + (
+    type === 'err'  ? 'fa-circle-exclamation' :
+    type === 'warn' ? 'fa-triangle-exclamation' :
+                      'fa-circle-info'
+  );
+  icon.style.color = type === 'err' ? 'var(--red)' : type === 'warn' ? 'var(--amber)' : 'var(--blue)';
+}
+function closeBanner() {
+  document.getElementById('banner').classList.remove('show');
+}
 
 // ── TOAST ─────────────────────────────────────────────
 function toast(msg, type = 'info') {
   document.querySelectorAll('.toast').forEach(t => t.remove());
   const icons  = { success:'fa-check-circle', error:'fa-circle-exclamation', info:'fa-circle-info' };
-  const colors = { success:'var(--green)', error:'var(--red)', info:'var(--blue)' };
+  const colors = { success:'var(--green)',    error:'var(--red)',             info:'var(--blue)'    };
   const el = document.createElement('div');
   el.className = 'toast';
   el.style.borderLeftColor = colors[type] || colors.info;
-  el.innerHTML = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]};font-size:15px;"></i> ${msg}`;
+  el.innerHTML = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]};font-size:15px;flex-shrink:0;"></i><span>${esc(msg)}</span>`;
   document.body.appendChild(el);
   setTimeout(() => {
     el.style.animation = 'tOut .3s ease forwards';
     setTimeout(() => el.remove(), 300);
-  }, 3500);
-}
-
-// ── BANNER ────────────────────────────────────────────
-function showBanner(msg, title, isErr = false) {
-  const b = document.getElementById('banner');
-  document.getElementById('bannerTitle').textContent = title;
-  document.getElementById('bannerMsg').textContent   = msg;
-  b.classList.add('show');
-  if (isErr) b.classList.add('err');
-  document.getElementById('bannerIcon').className = 'fas ' + (isErr ? 'fa-circle-exclamation' : 'fa-circle-info') + ' banner-icon';
-  document.getElementById('bannerIcon').style.color = isErr ? 'var(--red)' : 'var(--blue)';
+  }, 3800);
 }
 
 // ── THEME ─────────────────────────────────────────────
@@ -755,52 +863,25 @@ function applyTheme(t) {
 
 // ── HELPERS ───────────────────────────────────────────
 function esc(s) {
-  return String(s||'').replace(/[&<>"']/g, m =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return String(s || '').replace(/[&<>"']/g, m =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[m]
+  );
 }
-function truncate(s, n) { return s.length > n ? s.slice(0,n)+'…' : s; }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s || ''; }
+function sleep(ms)       { return new Promise(r => setTimeout(r, ms)); }
 function fmtDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) +
-    ' <span style="opacity:.5;">' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + '</span>';
+  if (!iso) return '<span style="color:var(--text3);">Never</span>';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) +
+      ' <span style="opacity:.5;">' +
+      d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) +
+      '</span>';
+  } catch { return '—'; }
 }
 
 // ── BOOT ──────────────────────────────────────────────
 init();
 </script>
-
-<!--
-══════════════════════════════════════════════════════
-  SUPABASE SCHEMA — run this once in your SQL Editor
-══════════════════════════════════════════════════════
-
-CREATE TABLE domains (
-  id SERIAL PRIMARY KEY,
-  name TEXT UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE keywords (
-  id SERIAL PRIMARY KEY,
-  keyword TEXT NOT NULL,
-  domain_id INT REFERENCES domains(id) ON DELETE CASCADE,
-  position INT DEFAULT 0,
-  prev_position INT DEFAULT 0,
-  url_found TEXT DEFAULT '',
-  last_updated TIMESTAMPTZ DEFAULT NOW(),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE rank_history (
-  id SERIAL PRIMARY KEY,
-  keyword_id INT REFERENCES keywords(id) ON DELETE CASCADE,
-  position INT,
-  recorded_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-══════════════════════════════════════════════════════
--->
 </body>
 </html>
