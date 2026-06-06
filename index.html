@@ -353,7 +353,7 @@ select.inp { cursor:pointer; }
 // ════════════════════════════════════════════════════════
 const SUPABASE_URL  = 'https://whbtszifkfdfcrpnakos.supabase.co';       // e.g. https://xxxx.supabase.co
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw';  // eyJhbGci…
-const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';         // from serpapi.com
+const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';  // from serpapi.com
 // ════════════════════════════════════════════════════════
 // NOTE ON SERPAPI: Browsers block direct calls to serpapi.com (CORS).
 // To use Update Rankings you need one of:
@@ -515,7 +515,7 @@ async function addKeyword() {
   if (!sb) return toast('Supabase not configured', 'error');
 
   const kw       = document.getElementById('kwInput').value.trim();
-  const domainId = parseInt(document.getElementById('kwDomain').value, 10);
+  const domainId = document.getElementById('kwDomain').value;
 
   if (!kw)       return toast('Enter a keyword', 'error');
   if (!domainId) return toast('Select a domain first', 'error');
@@ -722,7 +722,7 @@ function renderTable() {
 
   const rows = keywords.filter(k => {
     if (search && !k.keyword.toLowerCase().includes(search) && !k.domain_name.toLowerCase().includes(search)) return false;
-    if (domainF !== 'all' && String(k.domain_id) !== domainF) return false;
+    if (domainF !== 'all' && k.domain_id !== domainF) return false;
     const p = k.position;
     if (rankF === 'top1'     && p !== 1)             return false;
     if (rankF === 'top3'     && (p < 1 || p > 3))    return false;
