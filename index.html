@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        /* Dark/Light theme variables */
         :root {
             --bg: #060a12;
             --s1: #0d1420;
@@ -83,6 +82,9 @@
             cursor: pointer;
             border: none;
             color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .btn-primary:hover {
             background: var(--blue2);
@@ -95,6 +97,9 @@
             padding: 0.6rem 1.2rem;
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .btn-outline:hover {
             background: var(--s3);
@@ -148,10 +153,6 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -176,10 +177,10 @@
                 <div class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">RankTrack <span class="text-sm font-normal text-[var(--text2)]">Pro</span></div>
             </div>
             <div class="flex items-center gap-4">
-                <button id="openApiSettingsBtn" class="btn-outline text-sm flex items-center gap-2"><i class="fas fa-key"></i> API Key</button>
+                <button id="openApiSettingsBtn" class="btn-outline text-sm"><i class="fas fa-key"></i> API Key</button>
                 <div class="flex gap-2 border border-[var(--border)] rounded-full p-1">
-                    <button onclick="setTheme('light')" class="theme-btn">☀️</button>
-                    <button onclick="setTheme('dark')" class="theme-btn active">🌙</button>
+                    <button onclick="window.setTheme('light')" class="theme-btn">☀️</button>
+                    <button onclick="window.setTheme('dark')" class="theme-btn active">🌙</button>
                 </div>
             </div>
         </div>
@@ -203,9 +204,9 @@
                         <option value="notrack">Not Tracked(0)</option>
                     </select>
                 </div>
-                <button id="refreshRankingsBtn" class="btn-primary flex items-center gap-2"><i class="fas fa-sync-alt"></i> Update Rankings</button>
-                <button id="showDomainModalBtn" class="btn-outline flex items-center gap-2"><i class="fas fa-plus-circle"></i> Domain</button>
-                <button id="showKeywordModalBtn" class="btn-primary flex items-center gap-2"><i class="fas fa-key"></i> Add Keyword</button>
+                <button id="refreshRankingsBtn" class="btn-primary"><i class="fas fa-sync-alt"></i> Update Rankings</button>
+                <button id="showDomainModalBtn" class="btn-outline"><i class="fas fa-plus-circle"></i> Domain</button>
+                <button id="showKeywordModalBtn" class="btn-primary"><i class="fas fa-key"></i> Add Keyword</button>
             </div>
         </div>
 
@@ -256,17 +257,42 @@
 
     <!-- Modals -->
     <div id="domainModal" class="hidden modal-overlay">
-        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">➕ Add Domain</h3><input id="domainNameInput" class="filter-input w-full mb-5" placeholder="example.com"><div class="flex gap-3"><button id="closeDomainBtn" class="flex-1 btn-outline">Cancel</button><button id="saveDomainBtn" class="flex-1 btn-primary">Save Domain</button></div></div>
+        <div class="card-premium w-full max-w-md p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4">➕ Add Domain</h3>
+            <input id="domainNameInput" class="filter-input w-full mb-5" placeholder="example.com">
+            <div class="flex gap-3">
+                <button id="closeDomainBtn" class="flex-1 btn-outline">Cancel</button>
+                <button id="saveDomainBtn" class="flex-1 btn-primary">Save Domain</button>
+            </div>
+        </div>
     </div>
+    
     <div id="keywordModal" class="hidden modal-overlay">
-        <div class="card-premium w-full max-w-md p-6 rounded-2xl"><h3 class="text-xl font-bold mb-4">🔑 Track Keyword</h3><input id="keywordInput" class="filter-input w-full mb-3" placeholder="best seo tool"><select id="keywordDomainSelect" class="filter-input w-full mb-3"></select><input id="initialPosition" class="filter-input w-full" placeholder="Current position (optional)" value="15"><div class="flex gap-3 mt-5"><button id="closeKeywordBtn" class="flex-1 btn-outline">Cancel</button><button id="saveKeywordBtn" class="flex-1 btn-primary">Track Keyword</button></div></div>
+        <div class="card-premium w-full max-w-md p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4">🔑 Track Keyword</h3>
+            <input id="keywordInput" class="filter-input w-full mb-3" placeholder="best seo tool">
+            <select id="keywordDomainSelect" class="filter-input w-full mb-3"></select>
+            <input id="initialPosition" class="filter-input w-full" placeholder="Current position (optional)" value="15">
+            <div class="flex gap-3 mt-5">
+                <button id="closeKeywordBtn" class="flex-1 btn-outline">Cancel</button>
+                <button id="saveKeywordBtn" class="flex-1 btn-primary">Track Keyword</button>
+            </div>
+        </div>
     </div>
+    
     <div id="apiModal" class="hidden modal-overlay">
-        <div class="card-premium w-full max-w-md p-6"><h3 class="text-xl font-bold mb-2">🔐 SERP API Configuration</h3><p class="text-xs text-[var(--text3)] mb-4">Enter your SerpAPI key to fetch live rankings</p><input id="apiKeyInput" class="filter-input w-full mb-4" placeholder="Enter your API key"><button id="saveApiBtn" class="btn-primary w-full">Save & Activate</button><div id="apiMsg" class="text-xs mt-3 text-center"></div><button id="closeApiBtn" class="w-full mt-3 text-[var(--text2)]">Close</button></div>
+        <div class="card-premium w-full max-w-md p-6">
+            <h3 class="text-xl font-bold mb-2">🔐 SERP API Configuration</h3>
+            <p class="text-xs text-[var(--text3)] mb-4">Enter your SerpAPI key to fetch live rankings</p>
+            <input id="apiKeyInput" class="filter-input w-full mb-4" placeholder="Enter your API key">
+            <button id="saveApiBtn" class="btn-primary w-full">Save & Activate</button>
+            <div id="apiMsg" class="text-xs mt-3 text-center"></div>
+            <button id="closeApiBtn" class="w-full mt-3 text-[var(--text2)]">Close</button>
+        </div>
     </div>
 
     <script>
-        // Supabase Configuration (working credentials provided)
+        // Supabase Configuration
         const SUPABASE_URL = "https://whbtszifkfdfcrpnakos.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw";
         
@@ -290,26 +316,14 @@
         async function initSupabase() {
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                // Test connection
-                const { error } = await supabase.from("domains").select("id", { count: "exact", head: true }).limit(1);
-                if (error && error.code === "42P01") {
-                    showToast("Tables not found. Creating tables automatically...", "info");
-                    await createTables();
-                }
                 await fetchDataFromSupabase();
                 return true;
             } catch(e) { 
                 console.error("Supabase init error", e);
-                showToast("Using local storage mode. Connect Supabase for cloud sync.", "info");
+                showToast("Using local storage mode", "info");
                 loadDemoData();
                 return false;
             }
-        }
-
-        async function createTables() {
-            // Since we can't run arbitrary SQL from browser, we'll guide user
-            showToast("Please run SQL schema in Supabase SQL editor. Using local mode for now.", "error");
-            loadDemoData();
         }
 
         async function fetchDataFromSupabase() {
@@ -349,12 +363,11 @@
                 domainsList = parsed.domains || [];
                 keywordsData = parsed.keywords || [];
             } else {
-                domainsList = [{ id: 1, name: "assetscout.in" }, { id: 2, name: "example.com" }];
+                domainsList = [{ id: 1, name: "assetscout.in" }, { id: 2, name: "google.com" }];
                 keywordsData = [
-                    { id: 101, keyword: "real estate leads", domain_id: 1, position: 3, prev_position: 5, last_updated: new Date().toISOString(), domain_name: "assetscout.in" },
-                    { id: 102, keyword: "property management software", domain_id: 1, position: 8, prev_position: 9, last_updated: new Date().toISOString(), domain_name: "assetscout.in" },
-                    { id: 103, keyword: "seo rank tracker", domain_id: 2, position: 1, prev_position: 2, last_updated: new Date().toISOString(), domain_name: "example.com" },
-                    { id: 104, keyword: "keyword monitoring", domain_id: 2, position: 12, prev_position: 14, last_updated: new Date().toISOString(), domain_name: "example.com" }
+                    { id: 101, keyword: "seo tools", domain_id: 1, position: 3, prev_position: 5, last_updated: new Date().toISOString(), domain_name: "assetscout.in" },
+                    { id: 102, keyword: "rank tracker", domain_id: 1, position: 8, prev_position: 9, last_updated: new Date().toISOString(), domain_name: "assetscout.in" },
+                    { id: 103, keyword: "keyword research", domain_id: 2, position: 1, prev_position: 2, last_updated: new Date().toISOString(), domain_name: "google.com" }
                 ];
             }
             renderDomainsDropdown();
@@ -363,10 +376,12 @@
 
         function renderDomainsDropdown() {
             let select = document.getElementById("keywordDomainSelect");
-            if(select) select.innerHTML = domainsList.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+            if(select && domainsList.length) {
+                select.innerHTML = domainsList.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+            }
         }
 
-        async function addDomain() {
+        window.addDomain = async function() {
             let name = document.getElementById("domainNameInput").value.trim().toLowerCase();
             if(!name) { showToast("Please enter a domain name", "error"); return; }
             if(supabase) {
@@ -384,7 +399,7 @@
             showToast(`Domain ${name} added`, "success");
         }
 
-        async function addKeyword() {
+        window.addKeyword = async function() {
             let keyword = document.getElementById("keywordInput").value.trim();
             let domainId = document.getElementById("keywordDomainSelect").value;
             let pos = parseInt(document.getElementById("initialPosition").value) || 15;
@@ -407,7 +422,7 @@
             showToast(`Keyword "${keyword}" added`, "success");
         }
 
-        async function deleteKeyword(id) {
+        window.deleteKeyword = async function(id) {
             if(!confirm("Delete this keyword permanently?")) return;
             if(supabase) {
                 let { error } = await supabase.from("keywords").delete().eq("id", id);
@@ -458,7 +473,7 @@
                     <td class="px-4 py-4"><span class="rank-badge ${rankClass}">#${position || '—'}</span></td>
                     <td class="px-4 py-4">${changeIcon} ${changeVal !== 0 ? changeVal : ''}</td>
                     <td class="px-4 py-4 text-[var(--text3)] text-xs">${lastChecked}</td>
-                    <td class="px-8 py-4 text-right"><button onclick="deleteKeyword(${kw.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash-alt"></i></button></td>
+                    <td class="px-8 py-4 text-right"><button onclick="window.deleteKeyword(${kw.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash-alt"></i></button></td>
                 </tr>`;
             }).join('');
         }
@@ -499,10 +514,10 @@
             trendChart = new Chart(trendCtx, { type: 'line', data: { labels: ['6d','5d','4d','3d','2d','yesterday','today'], datasets: [{ label: 'Avg Position', data: avgPositions, borderColor: '#3b82f6', tension: 0.3, fill: true, backgroundColor: 'rgba(59,130,246,0.2)' }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
         }
 
-        async function refreshRankingsFromAPI() {
+        window.refreshRankingsFromAPI = async function() {
             if(!apiKey) { showToast("Please set SERP API key in settings", "error"); openApiSettings(); return; }
             if(!keywordsData.length) { showToast("No keywords to track", "error"); return; }
-            document.getElementById("rankingsTbody").innerHTML = '<tr><td colspan="6" class="text-center py-12"><i class="fas fa-spinner fa-spin"></i> Fetching live rankings from Google...</td></tr>';
+            showToast("Fetching rankings from Google...", "info");
             let updatedCount = 0;
             for(let i=0; i<keywordsData.length; i++) {
                 let kw = keywordsData[i];
@@ -525,10 +540,11 @@
             }
             if(!supabase) saveLocalBackup();
             renderTableAndMetrics();
-            showToast(`Rankings updated! ${updatedCount} keywords refreshed.`, "success");
+            showToast(`${updatedCount} keywords refreshed!`, "success");
         }
 
         async function fetchRankFromSerpAPI(keyword, domain) {
+            if(!apiKey) return null;
             const url = `https://serpapi.com/search.json?q=${encodeURIComponent(keyword)}&api_key=${apiKey}&num=100`;
             try {
                 const resp = await fetch(url);
@@ -543,7 +559,7 @@
             } catch(err) { return null; }
         }
 
-        function saveApiKey() {
+        window.saveApiKey = function() {
             let newKey = document.getElementById("apiKeyInput").value.trim();
             if(newKey) { 
                 apiKey = newKey; 
@@ -558,7 +574,6 @@
 
         function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
         
-        // Modal controls
         function showAddDomainModal() { document.getElementById("domainModal").classList.remove("hidden"); }
         function closeDomainModal() { document.getElementById("domainModal").classList.add("hidden"); document.getElementById("domainNameInput").value = ""; }
         function showAddKeywordModal() { renderDomainsDropdown(); document.getElementById("keywordModal").classList.remove("hidden"); }
@@ -566,7 +581,7 @@
         function openApiSettings() { document.getElementById("apiModal").classList.remove("hidden"); document.getElementById("apiKeyInput").value = apiKey; document.getElementById("apiMsg").innerHTML = ""; }
         function closeApiModal() { document.getElementById("apiModal").classList.add("hidden"); }
         
-        function setTheme(theme) { 
+        window.setTheme = function(theme) { 
             document.documentElement.setAttribute('data-theme', theme); 
             localStorage.setItem("rankTheme", theme); 
             document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active')); 
@@ -575,23 +590,23 @@
             renderTableAndMetrics(); 
         }
 
-        // Initialize event listeners
+        // Set up event listeners
         document.getElementById("searchKeywordInput").addEventListener("input", () => filterAndRender());
         document.getElementById("rankFilterSelect").addEventListener("change", () => filterAndRender());
         document.getElementById("openApiSettingsBtn").addEventListener("click", openApiSettings);
-        document.getElementById("refreshRankingsBtn").addEventListener("click", refreshRankingsFromAPI);
+        document.getElementById("refreshRankingsBtn").addEventListener("click", () => window.refreshRankingsFromAPI());
         document.getElementById("showDomainModalBtn").addEventListener("click", showAddDomainModal);
         document.getElementById("showKeywordModalBtn").addEventListener("click", showAddKeywordModal);
-        document.getElementById("saveDomainBtn").addEventListener("click", addDomain);
+        document.getElementById("saveDomainBtn").addEventListener("click", () => window.addDomain());
         document.getElementById("closeDomainBtn").addEventListener("click", closeDomainModal);
-        document.getElementById("saveKeywordBtn").addEventListener("click", addKeyword);
+        document.getElementById("saveKeywordBtn").addEventListener("click", () => window.addKeyword());
         document.getElementById("closeKeywordBtn").addEventListener("click", closeKeywordModal);
-        document.getElementById("saveApiBtn").addEventListener("click", saveApiKey);
+        document.getElementById("saveApiBtn").addEventListener("click", () => window.saveApiKey());
         document.getElementById("closeApiBtn").addEventListener("click", closeApiModal);
         
         window.onload = async () => {
             const savedTheme = localStorage.getItem("rankTheme");
-            if(savedTheme) setTheme(savedTheme);
+            if(savedTheme) window.setTheme(savedTheme);
             await initSupabase();
         };
     </script>
