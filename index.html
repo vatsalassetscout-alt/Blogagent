@@ -1,255 +1,806 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Asset Scout | RankTrack Pro — Keyword Rank Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <style>
-        :root {
-            --bg: #060a12;
-            --s1: #0d1420;
-            --s2: #111c2e;
-            --s3: #172035;
-            --border: #1e2d45;
-            --text: #e2e8f0;
-            --text2: #94a3b8;
-            --blue: #3b82f6;
-            --green: #10b981;
-            --red: #ef4444;
-            --purple: #8b5cf6;
-        }
-        [data-theme="light"] {
-            --bg: #f0f4fa;
-            --s1: #ffffff;
-            --s2: #f5f8ff;
-            --s3: #eaf0fb;
-            --border: #d1ddf0;
-            --text: #0f172a;
-            --text2: #475569;
-        }
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', system-ui, sans-serif;
-        }
-        .card { background: var(--s1); border: 1px solid var(--border); border-radius: 1.5rem; }
-        .btn-primary { background: var(--blue); border-radius: 1rem; padding: 0.6rem 1.4rem; font-weight: 600; cursor: pointer; color: white; border: none; }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-outline { background: var(--s2); border: 1px solid var(--border); border-radius: 1rem; padding: 0.6rem 1.2rem; cursor: pointer; }
-        .filter-input, select, input { background: var(--bg); border: 1px solid var(--border); border-radius: 1rem; padding: 0.6rem 1rem; color: var(--text); outline: none; }
-        .rank-badge { border-radius: 40px; padding: 0.2rem 0.9rem; display: inline-block; font-size: 0.85rem; }
-        .rank-top1 { background: rgba(16,185,129,0.2); color: #10b981; }
-        .rank-top3 { background: rgba(59,130,246,0.2); color: #60a5fa; }
-        .rank-other { background: var(--s3); color: var(--text2); }
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .hidden { display: none !important; }
-        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--s1); border-left: 4px solid var(--blue); border-radius: 12px; padding: 12px 20px; z-index: 200; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RankTrack Pro — Asset Scout</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root {
+  --bg: #07090f;
+  --s1: #0c0f1a;
+  --s2: #111624;
+  --s3: #161c2e;
+  --border: #1c2540;
+  --border2: #253058;
+  --text: #e4eaf6;
+  --text2: #8494b8;
+  --text3: #3d4f72;
+  --blue: #3d7fff;
+  --blue2: #5a95ff;
+  --green: #0fcf86;
+  --amber: #ffb224;
+  --red: #ff4d4d;
+  --purple: #a259ff;
+  --mono: 'IBM Plex Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --shadow: rgba(0,0,0,.6);
+}
+[data-theme="light"] {
+  --bg: #eef2fa;
+  --s1: #ffffff;
+  --s2: #f4f7ff;
+  --s3: #e8eef9;
+  --border: #d0d9ee;
+  --border2: #b8c6e4;
+  --text: #0c1226;
+  --text2: #4a5a80;
+  --text3: #96a3be;
+  --shadow: rgba(0,0,0,.08);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--display);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  transition: background .25s, color .25s;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background: var(--s2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--blue); }
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top:0; z-index:60;
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  backdrop-filter: blur(16px);
+}
+.logo { display:flex; align-items:center; gap:13px; }
+.logo-mark {
+  width:40px; height:40px; border-radius:12px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:14px; color:#fff;
+  flex-shrink:0;
+}
+.logo-name {
+  font-size:19px; font-weight:800;
+  background: linear-gradient(90deg, var(--blue2), var(--purple));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.logo-sub { font-size:10px; color:var(--text3); letter-spacing:.5px; margin-top:1px; }
+.header-right { display:flex; align-items:center; gap:10px; }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle { display:flex; gap:3px; background:var(--s2); border:1px solid var(--border); border-radius:40px; padding:3px; }
+.theme-btn { width:30px; height:30px; border-radius:40px; border:none; background:transparent; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; transition:background .2s; }
+.theme-btn.active { background: var(--blue); }
+
+/* ── BUTTONS ── */
+.btn { border:none; border-radius:10px; padding:8px 16px; font-family:var(--display); font-size:13px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .2s; }
+.btn-blue { background:var(--blue); color:#fff; }
+.btn-blue:hover { background:var(--blue2); transform:translateY(-1px); box-shadow:0 4px 16px rgba(61,127,255,.35); }
+.btn-ghost { background:var(--s2); color:var(--text2); border:1px solid var(--border); }
+.btn-ghost:hover { background:var(--s3); color:var(--text); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+.btn-icon { background:transparent; border:none; cursor:pointer; width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--text3); transition:all .15s; }
+.btn-icon:hover { background:var(--s3); color:var(--text); }
+.btn-icon.del:hover { background:rgba(255,77,77,.1); color:var(--red); }
+.btn-icon.sync:hover { background:rgba(61,127,255,.1); color:var(--blue); }
+
+/* ── INPUTS ── */
+.inp { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:9px 14px; color:var(--text); font-family:var(--display); font-size:13px; outline:none; transition:border-color .2s, box-shadow .2s; width:100%; }
+.inp:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(61,127,255,.15); }
+.inp::placeholder { color:var(--text3); }
+select.inp { cursor:pointer; }
+[data-theme="dark"] select.inp option { background:var(--s2); }
+
+/* ── MAIN WRAPPER ── */
+.main { max-width:1440px; margin:0 auto; padding:24px 20px; }
+
+/* ── BANNER ── */
+.banner {
+  border-radius:14px; padding:16px 20px;
+  margin-bottom:22px; display:none; align-items:center; gap:14px;
+  background:linear-gradient(135deg,rgba(61,127,255,.1),rgba(162,89,255,.1));
+  border:1px solid rgba(61,127,255,.25);
+}
+.banner.show { display:flex; }
+.banner.err { background:rgba(255,77,77,.08); border-color:rgba(255,77,77,.25); }
+.banner-icon { font-size:20px; flex-shrink:0; }
+.banner-text { flex:1; font-size:13px; color:var(--text2); }
+.banner-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:14px; padding:14px 18px;
+  margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  box-shadow:0 2px 10px var(--shadow);
+}
+.search-wrap { position:relative; flex:1; min-width:200px; }
+.search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text3); font-size:12px; }
+.search-wrap .inp { padding-left:34px; }
+
+/* ── STATS GRID ── */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stat-card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:14px; padding:18px 20px; position:relative; overflow:hidden;
+  transition:transform .2s, border-color .2s;
+}
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent,var(--blue)); }
+.stat-card:hover { transform:translateY(-2px); border-color:var(--accent,var(--blue)); }
+.stat-label { font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); font-weight:700; }
+.stat-num { font-size:34px; font-weight:800; font-family:var(--mono); color:var(--accent,var(--blue)); line-height:1.1; margin-top:6px; }
+
+/* ── TABLE ── */
+.table-card { background:var(--s1); border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:0 2px 10px var(--shadow); }
+.table-titlebar { padding:14px 20px; background:var(--s2); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.table-titlebar h2 { font-size:15px; font-weight:700; }
+.table-titlebar p { font-size:11px; color:var(--text3); }
+.tbl { width:100%; border-collapse:collapse; }
+.tbl thead tr { background:linear-gradient(135deg,var(--blue),var(--purple)); }
+.tbl thead th { padding:12px 18px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:#fff; text-align:left; white-space:nowrap; }
+.tbl thead th:last-child { text-align:right; }
+.tbl tbody tr { border-bottom:1px solid var(--border); transition:background .12s; }
+.tbl tbody tr:hover { background:var(--s2); }
+.tbl tbody td { padding:12px 18px; font-size:13px; vertical-align:middle; }
+.tbl tbody td:last-child { text-align:right; }
+.tbl-empty { text-align:center; padding:60px 20px; color:var(--text3); font-size:13px; }
+.tbl-empty i { font-size:30px; display:block; margin-bottom:12px; opacity:.3; }
+
+/* ── RANK BADGES ── */
+.rank-badge { font-family:var(--mono); font-weight:700; border-radius:40px; padding:3px 11px; display:inline-block; font-size:12px; }
+.r1  { background:rgba(15,207,134,.15); color:var(--green); border:1px solid rgba(15,207,134,.3); }
+.r3  { background:rgba(61,127,255,.15); color:var(--blue2); border:1px solid rgba(61,127,255,.3); }
+.r10 { background:rgba(255,178,36,.15); color:var(--amber); border:1px solid rgba(255,178,36,.3); }
+.r20 { background:rgba(255,77,77,.1); color:var(--red); border:1px solid rgba(255,77,77,.2); }
+.r0  { background:var(--s3); color:var(--text3); border:1px solid var(--border); }
+
+/* ── CHANGE ── */
+.up   { color:var(--green); font-family:var(--mono); font-size:12px; }
+.down { color:var(--red); font-family:var(--mono); font-size:12px; }
+.same { color:var(--text3); font-family:var(--mono); font-size:12px; }
+
+/* ── URL cell ── */
+.url-cell { font-size:11px; color:var(--text3); font-family:var(--mono); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.url-cell a { color:var(--blue); text-decoration:none; }
+.url-cell a:hover { text-decoration:underline; }
+
+/* ── DATE cell ── */
+.date-cell { font-size:11px; color:var(--text3); font-family:var(--mono); white-space:nowrap; }
+
+/* ── MODAL ── */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--s1); border:1px solid var(--border2); border-radius:20px; padding:28px; width:92%; max-width:440px; box-shadow:0 24px 64px rgba(0,0,0,.6); animation:mIn .2s ease; }
+@keyframes mIn { from { transform:translateY(-14px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.modal-title { font-size:17px; font-weight:800; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.form-group { margin-bottom:14px; }
+.form-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); margin-bottom:5px; display:block; }
+.modal-actions { display:flex; gap:10px; margin-top:22px; }
+.modal-actions .btn { flex:1; justify-content:center; }
+
+/* ── PROGRESS MODAL ── */
+.prog-box { max-width:360px; text-align:center; }
+.prog-icon { font-size:36px; margin-bottom:14px; }
+.prog-title { font-size:16px; font-weight:800; margin-bottom:6px; }
+.prog-label { font-size:13px; color:var(--text2); margin-bottom:16px; min-height:20px; }
+.prog-bar { height:5px; background:var(--s3); border-radius:5px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--purple)); border-radius:5px; transition:width .4s ease; }
+.prog-count { font-size:11px; color:var(--text3); margin-top:8px; font-family:var(--mono); }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:24px; right:24px; z-index:400; background:var(--s1); border:1px solid var(--border2); border-left:4px solid var(--blue); border-radius:12px; padding:13px 18px; box-shadow:0 12px 36px rgba(0,0,0,.4); display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; animation:tIn .3s ease; min-width:240px; }
+@keyframes tIn { from { transform:translateX(110%); } to { transform:translateX(0); } }
+@keyframes tOut { to { transform:translateX(110%); opacity:0; } }
+
+/* ── DOMAIN PILLS ── */
+.domain-pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+.pill { padding:5px 15px; border-radius:40px; border:1px solid var(--border); background:var(--s2); color:var(--text2); font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; }
+.pill.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+.pill:hover:not(.active) { border-color:var(--blue2); color:var(--text); }
+
+/* ── SPINNER ── */
+.spin { animation:spinning 1s linear infinite; }
+@keyframes spinning { to { transform:rotate(360deg); } }
+
+@media (max-width:900px) { .stats-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:600px) { .stats-grid { grid-template-columns:1fr 1fr; } .filter-bar { flex-direction:column; } }
+</style>
 </head>
-<body class="min-h-screen pb-12">
-    <div class="max-w-screen-2xl mx-auto px-5 md:px-7 pt-5">
-        <!-- Header -->
-        <div class="card flex justify-between items-center px-7 py-4 mb-6">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">AS</div>
-                <div class="text-2xl font-bold">RankTrack <span class="text-sm text-[var(--text2)]">Pro</span></div>
-            </div>
-            <div class="flex gap-3">
-                <button id="apiSettingsBtn" class="btn-outline text-sm"><i class="fas fa-key"></i> API Key</button>
-                <button id="themeBtn" class="btn-outline text-sm">🌙</button>
-            </div>
-        </div>
+<body>
 
-        <!-- Action Bar -->
-        <div class="card p-5 mb-8">
-            <div class="flex flex-wrap gap-4">
-                <input type="text" id="searchInput" placeholder="Search keyword or domain..." class="filter-input flex-1">
-                <select id="rankFilter" class="w-44">
-                    <option value="all">All Rankings</option>
-                    <option value="top1">Position #1</option>
-                    <option value="top3">Top 3</option>
-                    <option value="top10">Top 10</option>
-                </select>
-                <button id="updateRankingsBtn" class="btn-primary"><i class="fas fa-sync-alt"></i> Update</button>
-                <button id="addDomainBtn" class="btn-outline"><i class="fas fa-plus-circle"></i> Domain</button>
-                <button id="addKeywordBtn" class="btn-primary"><i class="fas fa-key"></i> Add Keyword</button>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div class="card p-5"><div class="text-[var(--text2)] text-sm">Domains</div><div class="text-4xl font-black" id="statDomains">0</div></div>
-            <div class="card p-5"><div class="text-[var(--text2)] text-sm">Keywords</div><div class="text-4xl font-black" id="statKeywords">0</div></div>
-            <div class="card p-5"><div class="text-[var(--text2)] text-sm">Top 3</div><div class="text-4xl font-black" id="statTop3">0</div></div>
-            <div class="card p-5"><div class="text-[var(--text2)] text-sm">Avg Position</div><div class="text-4xl font-black" id="statAvgPos">—</div></div>
-        </div>
-
-        <!-- Table -->
-        <div class="card overflow-hidden">
-            <div class="px-7 py-4 border-b border-[var(--border)] bg-[var(--s2)]">
-                <h2 class="font-bold"><i class="fas fa-chart-line text-blue-500 mr-2"></i> Keyword Rankings</h2>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-[var(--blue)] text-white">
-                        <tr><th class="px-6 py-4 text-left">Keyword</th><th class="px-4 py-4 text-left">Domain</th><th class="px-4 py-4 text-left">Position</th><th class="px-4 py-4 text-left">Change</th><th class="px-8 py-4 text-right">Actions</th></tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-[var(--border)]"></tbody>
-                </table>
-            </div>
-            <div id="emptyMsg" class="text-center py-12 text-[var(--text2)] hidden">No keywords found</div>
-        </div>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">RT</div>
+    <div>
+      <div class="logo-name">RankTrack Pro</div>
+      <div class="logo-sub">Asset Scout · SERP Intelligence</div>
     </div>
-
-    <!-- Modals -->
-    <div id="domainModal" class="modal hidden">
-        <div class="card w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Add Domain</h3><input id="domainInput" class="filter-input w-full mb-5" placeholder="example.com"><div class="flex gap-3"><button id="closeDomainModal" class="flex-1 btn-outline">Cancel</button><button id="saveDomainBtn" class="flex-1 btn-primary">Save</button></div></div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost btn-sm" onclick="openModal('domainModal')"><i class="fas fa-globe"></i> Add Domain</button>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('kwModal')"><i class="fas fa-plus"></i> Add Keyword</button>
+    <div class="theme-toggle">
+      <button class="theme-btn" id="lightBtn" onclick="setTheme('light')">☀️</button>
+      <button class="theme-btn active" id="darkBtn" onclick="setTheme('dark')">🌙</button>
     </div>
-    <div id="keywordModal" class="modal hidden">
-        <div class="card w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4">Track Keyword</h3><input id="keywordInput" class="filter-input w-full mb-3" placeholder="keyword"><select id="domainSelect" class="filter-input w-full mb-3"></select><input id="initPosition" class="filter-input w-full" placeholder="Initial position" value="10"><div class="flex gap-3 mt-5"><button id="closeKeywordModal" class="flex-1 btn-outline">Cancel</button><button id="saveKeywordBtn" class="flex-1 btn-primary">Track</button></div></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- BANNER -->
+  <div class="banner" id="banner">
+    <i class="fas fa-circle-info banner-icon" id="bannerIcon"></i>
+    <div class="banner-text">
+      <div class="banner-title" id="bannerTitle"></div>
+      <div id="bannerMsg"></div>
     </div>
-    <div id="apiModal" class="modal hidden">
-        <div class="card w-full max-w-md p-6"><h3 class="text-xl font-bold mb-2">SERP API Key</h3><p class="text-xs text-[var(--text2)] mb-4">Enter your SerpAPI key</p><input id="apiKeyInput" class="filter-input w-full mb-4" placeholder="API key"><button id="saveApiBtn" class="btn-primary w-full">Save</button><button id="closeApiModal" class="w-full mt-3 text-[var(--text2)]">Close</button></div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input class="inp" id="searchInput" placeholder="Search keyword or domain…" oninput="renderTable()">
     </div>
+    <select class="inp" id="domainFilter" style="width:180px;" onchange="renderTable()">
+      <option value="all">All Domains</option>
+    </select>
+    <select class="inp" id="rankFilter" style="width:175px;" onchange="renderTable()">
+      <option value="all">All Positions</option>
+      <option value="top1">Position #1</option>
+      <option value="top3">Top 3</option>
+      <option value="top10">Top 10</option>
+      <option value="top20">11–20</option>
+      <option value="20plus">21+</option>
+      <option value="unranked">Not Ranked (0)</option>
+    </select>
+    <button class="btn btn-blue" id="refreshBtn" onclick="refreshAllRankings()">
+      <i class="fas fa-sync-alt" id="refreshIcon"></i> Update Rankings
+    </button>
+  </div>
 
-    <script>
-        // Data stores
-        let domains = JSON.parse(localStorage.getItem('domains') || '[{"id":1,"name":"assetscout.in"},{"id":2,"name":"example.com"}]');
-        let keywords = JSON.parse(localStorage.getItem('keywords') || '[]');
-        let apiKey = localStorage.getItem('serp_api_key') || '';
-        let charts = {};
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card" style="--accent:var(--blue);">
+      <div class="stat-label">Domains</div>
+      <div class="stat-num" id="sDomains">—</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--purple);">
+      <div class="stat-label">Keywords</div>
+      <div class="stat-num" id="sKeywords">—</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--green);">
+      <div class="stat-label">Top 3</div>
+      <div class="stat-num" id="sTop3">—</div>
+    </div>
+    <div class="stat-card" style="--accent:var(--amber);">
+      <div class="stat-label">Avg Position</div>
+      <div class="stat-num" id="sAvg">—</div>
+    </div>
+  </div>
 
-        // Initialize demo data if empty
-        if(keywords.length === 0) {
-            keywords = [
-                { id: 101, keyword: "seo tools", domainId: 1, domainName: "assetscout.in", position: 3, prevPosition: 5, lastUpdated: new Date().toISOString() },
-                { id: 102, keyword: "rank tracker", domainId: 1, domainName: "assetscout.in", position: 8, prevPosition: 9, lastUpdated: new Date().toISOString() },
-                { id: 103, keyword: "keyword research", domainId: 2, domainName: "example.com", position: 1, prevPosition: 2, lastUpdated: new Date().toISOString() }
-            ];
-            localStorage.setItem('keywords', JSON.stringify(keywords));
-        }
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-titlebar">
+      <h2><i class="fas fa-chart-line" style="color:var(--blue);margin-right:8px;"></i>Keyword Rankings</h2>
+      <p id="tableSubtitle">Loading…</p>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Domain</th>
+            <th>Position</th>
+            <th>Change</th>
+            <th>URL Found</th>
+            <th>Last Updated</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="tblEmpty" class="tbl-empty" style="display:none;">
+      <i class="fas fa-magnifying-glass"></i>No keywords match your filters
+    </div>
+  </div>
 
-        function saveData() { localStorage.setItem('domains', JSON.stringify(domains)); localStorage.setItem('keywords', JSON.stringify(keywords)); }
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+</div>
 
-        function renderTable() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const filter = document.getElementById('rankFilter').value;
-            let filtered = keywords.filter(k => !search || k.keyword.toLowerCase().includes(search) || k.domainName.toLowerCase().includes(search));
-            if(filter !== 'all') {
-                if(filter === 'top1') filtered = filtered.filter(k => k.position === 1);
-                else if(filter === 'top3') filtered = filtered.filter(k => k.position <= 3);
-                else if(filter === 'top10') filtered = filtered.filter(k => k.position <= 10);
-            }
-            const tbody = document.getElementById('tableBody');
-            if(filtered.length === 0) { tbody.innerHTML = ''; document.getElementById('emptyMsg').classList.remove('hidden'); return; }
-            document.getElementById('emptyMsg').classList.add('hidden');
-            tbody.innerHTML = filtered.map(k => {
-                const rankClass = k.position === 1 ? 'rank-top1' : (k.position <= 3 ? 'rank-top3' : 'rank-other');
-                const change = k.prevPosition ? k.prevPosition - k.position : 0;
-                const changeIcon = change > 0 ? '<i class="fas fa-arrow-up text-green-500"></i>' : (change < 0 ? '<i class="fas fa-arrow-down text-red-500"></i>' : '<i class="fas fa-minus text-gray-500"></i>');
-                return `<tr><td class="px-6 py-4 font-medium">${escapeHtml(k.keyword)}</td><td class="px-4 py-4 text-[var(--text2)]">${escapeHtml(k.domainName)}</td><td class="px-4 py-4"><span class="rank-badge ${rankClass}">#${k.position || '—'}</span></td><td class="px-4 py-4">${changeIcon} ${Math.abs(change) || ''}</td><td class="px-8 py-4 text-right"><button onclick="deleteKeyword(${k.id})" class="text-red-400"><i class="fas fa-trash-alt"></i></button></td></tr>`;
-            }).join('');
-            updateStats();
-        }
+<!-- MODAL: Add Domain -->
+<div class="modal-overlay" id="domainModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fas fa-globe" style="color:var(--blue);"></i> Add Domain</div>
+    <div class="form-group">
+      <label class="form-label">Domain (without https://)</label>
+      <input class="inp" id="domainInput" placeholder="example.com" onkeydown="if(event.key==='Enter')addDomain()">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('domainModal')">Cancel</button>
+      <button class="btn btn-blue" onclick="addDomain()"><i class="fas fa-plus"></i> Add Domain</button>
+    </div>
+  </div>
+</div>
 
-        function updateStats() {
-            document.getElementById('statDomains').innerText = domains.length;
-            document.getElementById('statKeywords').innerText = keywords.length;
-            document.getElementById('statTop3').innerText = keywords.filter(k => k.position > 0 && k.position <= 3).length;
-            const valid = keywords.filter(k => k.position > 0);
-            const avg = valid.length ? (valid.reduce((a,b)=>a+b.position,0)/valid.length).toFixed(1) : '—';
-            document.getElementById('statAvgPos').innerHTML = avg;
-        }
+<!-- MODAL: Add Keyword -->
+<div class="modal-overlay" id="kwModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fas fa-tags" style="color:var(--purple);"></i> Track Keyword</div>
+    <div class="form-group">
+      <label class="form-label">Keyword</label>
+      <input class="inp" id="kwInput" placeholder="e.g. buy apartments in pune">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Domain</label>
+      <select class="inp" id="kwDomain"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('kwModal')">Cancel</button>
+      <button class="btn btn-blue" onclick="addKeyword()"><i class="fas fa-plus"></i> Track Keyword</button>
+    </div>
+  </div>
+</div>
 
-        window.deleteKeyword = function(id) {
-            if(confirm('Delete this keyword?')) { keywords = keywords.filter(k => k.id !== id); saveData(); renderTable(); showToast('Keyword deleted'); }
-        }
+<!-- MODAL: Progress -->
+<div class="modal-overlay" id="progressModal">
+  <div class="modal-box prog-box">
+    <div class="prog-icon">🔍</div>
+    <div class="prog-title">Fetching Live Rankings</div>
+    <div class="prog-label" id="progLabel">Initializing…</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-count" id="progCount">0 / 0</div>
+  </div>
+</div>
 
-        function renderDomainSelect() {
-            const select = document.getElementById('domainSelect');
-            select.innerHTML = domains.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
-        }
+<script>
+// ════════════════════════════════════════════════════════
+//  ⚙️  CONFIGURATION — edit these values
+// ════════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://whbtszifkfdfcrpnakos.supabase.co';       // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoYnRzemlma2ZkZmNycG5ha29zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTk2MjIsImV4cCI6MjA5NjIzNTYyMn0.lhPJUgNO1GmwZt5yRBBVJHh13gLL59SQoLFuAYlgESw';  // eyJhbGci…
+const SERP_API_KEY  = '545454bcb1aa2dd89711c6678b0d503e2f860f65d4e23c6678ffeaf66f3c3537';         // from serpapi.com
+// ════════════════════════════════════════════════════════
 
-        // Add Domain
-        document.getElementById('addDomainBtn').onclick = () => document.getElementById('domainModal').classList.remove('hidden');
-        document.getElementById('closeDomainModal').onclick = () => document.getElementById('domainModal').classList.add('hidden');
-        document.getElementById('saveDomainBtn').onclick = () => {
-            const name = document.getElementById('domainInput').value.trim().toLowerCase();
-            if(name) { domains.push({ id: Date.now(), name }); saveData(); renderDomainSelect(); renderTable(); document.getElementById('domainModal').classList.add('hidden'); document.getElementById('domainInput').value = ''; showToast(`Domain ${name} added`); }
-        };
+// ── STATE ──────────────────────────────────────────────
+let sb = null;
+let domains = [];    // [{ id, name }]
+let keywords = [];   // [{ id, keyword, domain_id, domain_name, position, prev_position, url_found, last_updated }]
 
-        // Add Keyword
-        document.getElementById('addKeywordBtn').onclick = () => { renderDomainSelect(); document.getElementById('keywordModal').classList.remove('hidden'); };
-        document.getElementById('closeKeywordModal').onclick = () => document.getElementById('keywordModal').classList.add('hidden');
-        document.getElementById('saveKeywordBtn').onclick = () => {
-            const keyword = document.getElementById('keywordInput').value.trim();
-            const domainId = parseInt(document.getElementById('domainSelect').value);
-            const pos = parseInt(document.getElementById('initPosition').value) || 10;
-            const domain = domains.find(d => d.id === domainId);
-            if(keyword && domain) {
-                keywords.push({ id: Date.now(), keyword, domainId, domainName: domain.name, position: pos, prevPosition: pos, lastUpdated: new Date().toISOString() });
-                saveData(); renderTable(); document.getElementById('keywordModal').classList.add('hidden'); document.getElementById('keywordInput').value = ''; showToast(`Keyword "${keyword}" added`);
-            }
-        };
+// ── INIT ──────────────────────────────────────────────
+async function init() {
+  applyTheme(localStorage.getItem('rtp_theme') || 'dark');
 
-        // API Settings
-        document.getElementById('apiSettingsBtn').onclick = () => { document.getElementById('apiKeyInput').value = apiKey; document.getElementById('apiModal').classList.remove('hidden'); };
-        document.getElementById('closeApiModal').onclick = () => document.getElementById('apiModal').classList.add('hidden');
-        document.getElementById('saveApiBtn').onclick = () => {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if(key) { apiKey = key; localStorage.setItem('serp_api_key', key); showToast('API Key saved'); document.getElementById('apiModal').classList.add('hidden'); }
-        };
+  if (SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_ANON === 'YOUR_SUPABASE_ANON_KEY') {
+    showBanner('Add your Supabase and SerpAPI credentials at the top of the <script> block to get started.', 'Setup Required', true);
+    document.getElementById('tableSubtitle').textContent = 'Configure credentials to load data';
+    updateStats();
+    renderTable();
+    return;
+  }
 
-        // Update Rankings via SerpAPI
-        document.getElementById('updateRankingsBtn').onclick = async () => {
-            if(!apiKey) { showToast('Please set API key first'); document.getElementById('apiSettingsBtn').click(); return; }
-            if(!keywords.length) { showToast('No keywords to track'); return; }
-            showToast('Fetching rankings...');
-            for(let i = 0; i < keywords.length; i++) {
-                const kw = keywords[i];
-                const url = `https://serpapi.com/search.json?q=${encodeURIComponent(kw.keyword)}&api_key=${apiKey}&num=100`;
-                try {
-                    const resp = await fetch(url);
-                    const data = await resp.json();
-                    const organic = data.organic_results || [];
-                    let newPos = 0;
-                    for(let idx = 0; idx < organic.length; idx++) {
-                        if(organic[idx].link && organic[idx].link.toLowerCase().includes(kw.domainName.toLowerCase())) {
-                            newPos = idx + 1;
-                            break;
-                        }
-                    }
-                    kw.prevPosition = kw.position;
-                    kw.position = newPos || 0;
-                    kw.lastUpdated = new Date().toISOString();
-                } catch(e) { console.error(e); }
-                await new Promise(r => setTimeout(r, 1000));
-            }
-            saveData();
-            renderTable();
-            showToast('Rankings updated!');
-        };
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    await loadAll();
+  } catch(e) {
+    showBanner('Could not connect to Supabase: ' + e.message, 'Connection Error', true);
+  }
+}
 
-        // Theme toggle
-        let isDark = true;
-        document.getElementById('themeBtn').onclick = () => {
-            isDark = !isDark;
-            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            document.getElementById('themeBtn').innerHTML = isDark ? '🌙' : '☀️';
-        };
+// ── LOAD DATA ─────────────────────────────────────────
+async function loadAll() {
+  await loadDomains();
+  await loadKeywords();
+  buildDomainFilter();
+  updateStats();
+  renderTable();
+}
 
-        // Search & filter
-        document.getElementById('searchInput').addEventListener('input', () => renderTable());
-        document.getElementById('rankFilter').addEventListener('change', () => renderTable());
+async function loadDomains() {
+  const { data, error } = await sb.from('domains').select('*').order('name');
+  if (error) throw error;
+  domains = data || [];
+  buildDomainDropdowns();
+}
 
-        function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+async function loadKeywords() {
+  const { data, error } = await sb
+    .from('keywords')
+    .select('*, domains(name)')
+    .order('keyword');
+  if (error) throw error;
+  keywords = (data || []).map(k => ({
+    ...k,
+    domain_name: k.domains?.name || '—'
+  }));
+}
 
-        renderTable();
-    </script>
+// ── DOMAINS ───────────────────────────────────────────
+async function addDomain() {
+  const name = document.getElementById('domainInput').value.trim().toLowerCase().replace(/^https?:\/\//, '');
+  if (!name) return toast('Enter a domain name', 'error');
+  if (!sb) return toast('Supabase not configured', 'error');
+
+  const { data, error } = await sb.from('domains').insert({ name }).select().single();
+  if (error) return toast('Error: ' + (error.message.includes('unique') ? 'Domain already exists' : error.message), 'error');
+
+  domains.push(data);
+  domains.sort((a,b) => a.name.localeCompare(b.name));
+  buildDomainDropdowns();
+  buildDomainFilter();
+  document.getElementById('domainInput').value = '';
+  closeModal('domainModal');
+  toast('Domain added: ' + name, 'success');
+}
+
+function buildDomainDropdowns() {
+  const sel = document.getElementById('kwDomain');
+  sel.innerHTML = domains.length
+    ? domains.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')
+    : '<option value="">— add a domain first —</option>';
+}
+
+function buildDomainFilter() {
+  const sel = document.getElementById('domainFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">All Domains</option>' +
+    domains.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+// ── KEYWORDS ──────────────────────────────────────────
+async function addKeyword() {
+  const kw = document.getElementById('kwInput').value.trim();
+  const domainId = parseInt(document.getElementById('kwDomain').value);
+  if (!kw) return toast('Enter a keyword', 'error');
+  if (!domainId) return toast('Select a domain first', 'error');
+  if (!sb) return toast('Supabase not configured', 'error');
+
+  const { data, error } = await sb.from('keywords')
+    .insert({ keyword: kw, domain_id: domainId, position: 0, prev_position: 0 })
+    .select('*, domains(name)')
+    .single();
+  if (error) return toast('Error: ' + error.message, 'error');
+
+  keywords.push({ ...data, domain_name: data.domains?.name || '—' });
+  keywords.sort((a,b) => a.keyword.localeCompare(b.keyword));
+  document.getElementById('kwInput').value = '';
+  closeModal('kwModal');
+  updateStats();
+  renderTable();
+  toast('Keyword tracked: ' + kw, 'success');
+}
+
+async function deleteKeyword(id) {
+  if (!confirm('Remove this keyword from tracking?')) return;
+  const { error } = await sb.from('keywords').delete().eq('id', id);
+  if (error) return toast('Delete failed: ' + error.message, 'error');
+  keywords = keywords.filter(k => k.id !== id);
+  updateStats();
+  renderTable();
+  toast('Keyword removed', 'success');
+}
+
+// ── REFRESH RANKINGS ──────────────────────────────────
+async function refreshAllRankings() {
+  if (!sb) return toast('Supabase not configured', 'error');
+  if (SERP_API_KEY === 'YOUR_SERPAPI_KEY') return toast('Add your SerpAPI key in the config', 'error');
+  if (keywords.length === 0) return toast('No keywords to refresh', 'error');
+
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch spin"></i> Updating…';
+
+  openModal('progressModal');
+  const total = keywords.length;
+  let done = 0;
+
+  for (const kw of keywords) {
+    document.getElementById('progLabel').textContent = `Checking: "${kw.keyword}"`;
+    document.getElementById('progCount').textContent = `${done} / ${total}`;
+    document.getElementById('progFill').style.width = Math.round((done / total) * 100) + '%';
+
+    try {
+      const result = await fetchRank(kw.keyword, kw.domain_name);
+      const prevPos = kw.position;
+      const newPos  = result.position;
+      const newUrl  = result.url || '';
+
+      const { error } = await sb.from('keywords').update({
+        prev_position: prevPos,
+        position: newPos,
+        url_found: newUrl,
+        last_updated: new Date().toISOString()
+      }).eq('id', kw.id);
+
+      if (!error) {
+        // save to history
+        await sb.from('rank_history').insert({ keyword_id: kw.id, position: newPos });
+        kw.prev_position = prevPos;
+        kw.position = newPos;
+        kw.url_found = newUrl;
+        kw.last_updated = new Date().toISOString();
+      }
+    } catch(e) {
+      console.warn('Rank fetch error for', kw.keyword, e);
+    }
+
+    done++;
+    await sleep(500); // be polite to the API
+  }
+
+  document.getElementById('progFill').style.width = '100%';
+  document.getElementById('progCount').textContent = `${total} / ${total}`;
+  document.getElementById('progLabel').textContent = 'Done!';
+
+  await sleep(600);
+  closeModal('progressModal');
+
+  updateStats();
+  renderTable();
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-sync-alt"></i> Update Rankings';
+  toast(`Updated ${total} keyword${total !== 1 ? 's' : ''}`, 'success');
+}
+
+async function refreshOne(id) {
+  if (!sb) return toast('Supabase not configured', 'error');
+  if (SERP_API_KEY === 'YOUR_SERPAPI_KEY') return toast('Add your SerpAPI key in the config', 'error');
+
+  const kw = keywords.find(k => k.id === id);
+  if (!kw) return;
+
+  const btn = document.querySelector(`[data-sync="${id}"]`);
+  if (btn) { btn.innerHTML = '<i class="fas fa-circle-notch spin"></i>'; btn.disabled = true; }
+
+  try {
+    const result = await fetchRank(kw.keyword, kw.domain_name);
+    const prevPos = kw.position;
+    await sb.from('keywords').update({
+      prev_position: prevPos,
+      position: result.position,
+      url_found: result.url || '',
+      last_updated: new Date().toISOString()
+    }).eq('id', id);
+    await sb.from('rank_history').insert({ keyword_id: id, position: result.position });
+
+    kw.prev_position = prevPos;
+    kw.position = result.position;
+    kw.url_found = result.url || '';
+    kw.last_updated = new Date().toISOString();
+
+    updateStats();
+    renderTable();
+    toast(`Updated: "${kw.keyword}" → #${result.position || 'Not found'}`, 'success');
+  } catch(e) {
+    toast('Fetch error: ' + e.message, 'error');
+  }
+
+  if (btn) { btn.innerHTML = '<i class="fas fa-rotate"></i>'; btn.disabled = false; }
+}
+
+// ── SERPAPI CALL ──────────────────────────────────────
+async function fetchRank(keyword, domain) {
+  const params = new URLSearchParams({
+    engine: 'google',
+    q: keyword,
+    api_key: SERP_API_KEY,
+    num: 100,
+    gl: 'in',   // country — change as needed
+    hl: 'en'
+  });
+
+  const res = await fetch(`https://serpapi.com/search.json?${params}`);
+  if (!res.ok) throw new Error(`SerpAPI responded ${res.status}`);
+  const data = await res.json();
+
+  const results = data.organic_results || [];
+  for (let i = 0; i < results.length; i++) {
+    const link = (results[i].link || '').toLowerCase();
+    if (link.includes(domain.toLowerCase())) {
+      return { position: i + 1, url: results[i].link };
+    }
+  }
+  return { position: 0, url: '' };
+}
+
+// ── RENDER TABLE ──────────────────────────────────────
+function renderTable() {
+  const search  = document.getElementById('searchInput').value.toLowerCase();
+  const domainF = document.getElementById('domainFilter').value;
+  const rankF   = document.getElementById('rankFilter').value;
+
+  let rows = keywords.filter(k => {
+    if (search && !k.keyword.toLowerCase().includes(search) && !k.domain_name.toLowerCase().includes(search)) return false;
+    if (domainF !== 'all' && String(k.domain_id) !== domainF) return false;
+    const p = k.position;
+    if (rankF === 'top1'    && p !== 1)            return false;
+    if (rankF === 'top3'    && (p < 1 || p > 3))   return false;
+    if (rankF === 'top10'   && (p < 1 || p > 10))  return false;
+    if (rankF === 'top20'   && (p < 11 || p > 20)) return false;
+    if (rankF === '20plus'  && p <= 20)             return false;
+    if (rankF === 'unranked'&& p !== 0)             return false;
+    return true;
+  });
+
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('tblEmpty');
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('tableSubtitle').textContent =
+      keywords.length === 0 ? 'Add domains and keywords to start tracking' : 'No results match current filters';
+    return;
+  }
+
+  empty.style.display = 'none';
+  document.getElementById('tableSubtitle').textContent =
+    `${rows.length} keyword${rows.length !== 1 ? 's' : ''} · click Update Rankings for fresh data`;
+
+  tbody.innerHTML = rows.map(k => {
+    const rankClass = k.position === 0 ? 'r0' : k.position === 1 ? 'r1' : k.position <= 3 ? 'r3' : k.position <= 10 ? 'r10' : 'r20';
+    const rankLabel = k.position === 0 ? '—' : `#${k.position}`;
+
+    let changeTxt = '<span class="same">—</span>';
+    if (k.prev_position > 0 && k.position > 0) {
+      const diff = k.prev_position - k.position; // positive = improved
+      if (diff > 0)      changeTxt = `<span class="up">↑ ${diff}</span>`;
+      else if (diff < 0) changeTxt = `<span class="down">↓ ${Math.abs(diff)}</span>`;
+      else               changeTxt = `<span class="same">— 0</span>`;
+    } else if (k.prev_position > 0 && k.position === 0) {
+      changeTxt = `<span class="down">↓ dropped</span>`;
+    }
+
+    const urlHtml = k.url_found
+      ? `<a href="${esc(k.url_found)}" target="_blank" rel="noopener">${esc(truncate(k.url_found, 50))}</a>`
+      : '<span style="color:var(--text3);">—</span>';
+
+    const dateHtml = k.last_updated
+      ? fmtDate(k.last_updated)
+      : '<span style="color:var(--text3);">Never</span>';
+
+    return `<tr>
+      <td style="font-weight:600;">${esc(k.keyword)}</td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--text2);">${esc(k.domain_name)}</span></td>
+      <td><span class="rank-badge ${rankClass}">${rankLabel}</span></td>
+      <td>${changeTxt}</td>
+      <td class="url-cell">${urlHtml}</td>
+      <td class="date-cell">${dateHtml}</td>
+      <td>
+        <div style="display:flex;gap:4px;justify-content:flex-end;">
+          <button class="btn-icon sync" data-sync="${k.id}" onclick="refreshOne(${k.id})" title="Refresh"><i class="fas fa-rotate"></i></button>
+          <button class="btn-icon del" onclick="deleteKeyword(${k.id})" title="Remove"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── STATS ─────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('sDomains').textContent  = domains.length;
+  document.getElementById('sKeywords').textContent = keywords.length;
+  const ranked = keywords.filter(k => k.position > 0);
+  const top3   = ranked.filter(k => k.position <= 3).length;
+  const avg    = ranked.length ? Math.round(ranked.reduce((s,k) => s + k.position, 0) / ranked.length) : 0;
+  document.getElementById('sTop3').textContent = top3;
+  document.getElementById('sAvg').textContent  = avg || '—';
+}
+
+// ── MODALS ────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'kwModal') buildDomainDropdowns();
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m && m.id !== 'progressModal') closeModal(m.id); });
+});
+
+// ── TOAST ─────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const icons  = { success:'fa-check-circle', error:'fa-circle-exclamation', info:'fa-circle-info' };
+  const colors = { success:'var(--green)', error:'var(--red)', info:'var(--blue)' };
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderLeftColor = colors[type] || colors.info;
+  el.innerHTML = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]};font-size:15px;"></i> ${msg}`;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'tOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+
+// ── BANNER ────────────────────────────────────────────
+function showBanner(msg, title, isErr = false) {
+  const b = document.getElementById('banner');
+  document.getElementById('bannerTitle').textContent = title;
+  document.getElementById('bannerMsg').textContent   = msg;
+  b.classList.add('show');
+  if (isErr) b.classList.add('err');
+  document.getElementById('bannerIcon').className = 'fas ' + (isErr ? 'fa-circle-exclamation' : 'fa-circle-info') + ' banner-icon';
+  document.getElementById('bannerIcon').style.color = isErr ? 'var(--red)' : 'var(--blue)';
+}
+
+// ── THEME ─────────────────────────────────────────────
+function setTheme(t) {
+  localStorage.setItem('rtp_theme', t);
+  applyTheme(t);
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('darkBtn').classList.toggle('active', t === 'dark');
+  document.getElementById('lightBtn').classList.toggle('active', t === 'light');
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/[&<>"']/g, m =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function truncate(s, n) { return s.length > n ? s.slice(0,n)+'…' : s; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) +
+    ' <span style="opacity:.5;">' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' }) + '</span>';
+}
+
+// ── BOOT ──────────────────────────────────────────────
+init();
+</script>
+
+<!--
+══════════════════════════════════════════════════════
+  SUPABASE SCHEMA — run this once in your SQL Editor
+══════════════════════════════════════════════════════
+
+CREATE TABLE domains (
+  id SERIAL PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE keywords (
+  id SERIAL PRIMARY KEY,
+  keyword TEXT NOT NULL,
+  domain_id INT REFERENCES domains(id) ON DELETE CASCADE,
+  position INT DEFAULT 0,
+  prev_position INT DEFAULT 0,
+  url_found TEXT DEFAULT '',
+  last_updated TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE rank_history (
+  id SERIAL PRIMARY KEY,
+  keyword_id INT REFERENCES keywords(id) ON DELETE CASCADE,
+  position INT,
+  recorded_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+══════════════════════════════════════════════════════
+-->
 </body>
 </html>
