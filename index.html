@@ -684,7 +684,8 @@ async function refreshOne(id) {
 // ── SERPAPI CALL ──────────────────────────────────────
 // IMPORTANT: Direct browser → SerpAPI calls are blocked by CORS.
 // This function works fine when served from a backend/edge function.
-// If you get a CORS error, route through a proxy (see README / top comment).
+// SERPAPI CALL
+// Tries direct fetch first; falls back to allorigins proxy if CORS blocks it.
 async function fetchRank(keyword, domain) {
   const params = new URLSearchParams({
     engine:  'google',
@@ -695,15 +696,39 @@ async function fetchRank(keyword, domain) {
     hl:       'en'
   });
 
-  const res = await fetch(`https://serpapi.com/search.json?${params}`);
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`SerpAPI ${res.status}: ${body.slice(0,120)}`);
+  const directUrl = 'https://serpapi.com/search.json?' + params.toString();
+  const proxyUrl  = 'https://api.allorigins.win/get?url=' + encodeURIComponent(directUrl);
+
+  let data;
+
+  // attempt 1: direct (works on real server or localhost)
+  try {
+    const res = await fetch(directUrl);
+    if (res.ok) {
+      data = await res.json();
+    } else {
+      const body = await res.text().catch(() => '');
+      throw new Error('SerpAPI ' + res.status + ': ' + body.slice(0, 200));
+    }
+  } catch (directErr) {
+    // attempt 2: allorigins CORS proxy
+    console.warn('Direct SerpAPI blocked, trying proxy:', directErr.message);
+    try {
+      const res2 = await fetch(proxyUrl);
+      if (!res2.ok) throw new Error('Proxy ' + res2.status);
+      const wrapper = await res2.json();
+      if (!wrapper.contents) throw new Error('Empty proxy response');
+      data = JSON.parse(wrapper.contents);
+    } catch (proxyErr) {
+      console.error('Proxy also failed:', proxyErr.message);
+      throw new Error('CORS blocked. Direct: ' + directErr.message + ' | Proxy: ' + proxyErr.message);
+    }
   }
 
-  const data    = await res.json();
+  if (data.error) throw new Error('SerpAPI error: ' + data.error);
+
   const results = data.organic_results || [];
-  const clean   = domain.toLowerCase().replace(/^https?:\/\//, '');
+  const clean   = domain.toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
 
   for (let i = 0; i < results.length; i++) {
     const link = (results[i].link || '').toLowerCase();
@@ -713,6 +738,7 @@ async function fetchRank(keyword, domain) {
   }
   return { position: 0, url: '' };
 }
+
 
 // ── RENDER TABLE ──────────────────────────────────────
 function renderTable() {
